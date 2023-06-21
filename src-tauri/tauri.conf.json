@@ -11,6 +11,7 @@
     "version": "0.1.0"
   },
   "tauri": {
+    "macOSPrivateApi": true,
     "allowlist": {
       "all": false,
       "window": {
@@ -76,8 +77,10 @@
         "width": 800,
         "decorations": false,
         "alwaysOnTop": true,
+        "theme": "Dark",
+        "visible": false,
         "transparent": true,
-        "theme": "Dark"
+        "titleBarStyle": "Transparent"
       }
     ]
   }

@@ -18,8 +18,8 @@ fn resize_window(window: tauri::Window) {
 
     window
         .set_size(LogicalSize {
-            width: 500,
-            height: screen_size.height,
+            width: ((screen_size.width as f64 * 0.15)).round() as u32,
+            height: screen_size.height - 25,
         })
         .unwrap();
     window
@@ -28,6 +28,7 @@ fn resize_window(window: tauri::Window) {
             y: screen_position.y,
         })
         .unwrap();
+    window.show().unwrap();
 }
 
 #[command]
