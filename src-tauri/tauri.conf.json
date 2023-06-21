@@ -12,7 +12,20 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "all": false,
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "setAlwaysOnTop": true,
+        "setSize": true,
+        "setPosition": true,
+        "setFocus": true
+      },
+      "globalShortcut": {
+        "all": true
+      }
     },
     "bundle": {
       "active": true,
@@ -57,9 +70,14 @@
       {
         "fullscreen": false,
         "height": 600,
-        "resizable": true,
+        "focus": true,
+        "resizable": false,
         "title": "ai-assistant",
-        "width": 800
+        "width": 800,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "transparent": true,
+        "theme": "Dark"
       }
     ]
   }
