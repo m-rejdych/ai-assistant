@@ -5,7 +5,7 @@ module.exports = {
   entry: './src/index.ts',
   output: {
     filename: 'build.[contenthash:8].js',
-    path: path.resolve(__dirname, 'build'),
+    path: path.resolve(__dirname, 'dist'),
   },
   target: 'node',
   node: false,
