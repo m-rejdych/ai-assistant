@@ -16,6 +16,9 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="h-full"></main>
+    <main className="h-full px-4 py-8 flex flex-col">
+      <div className="flex-1" />
+      <textarea className="textarea textarea-primary resize-none"></textarea>
+    </main>
   );
 }
