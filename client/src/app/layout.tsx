@@ -12,7 +12,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="coffee" className="rounded-r-3xl">
-      <body className="h-screen">{children}</body>
+      <body className="h-screen">
+          {children}
+      </body>
     </html>
   );
 }

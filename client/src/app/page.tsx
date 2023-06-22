@@ -25,13 +25,16 @@ export default function Home() {
 
     return () => {
       window.removeEventListener('focus', focusInput);
-      };
+    };
   }, []);
 
   return (
     <main className="h-full px-4 py-8 flex flex-col">
       <div className="flex-1" />
-      <textarea className="textarea textarea-primary resize-none" ref={inputRef}></textarea>
+      <textarea
+        className="textarea textarea-primary resize-none"
+        ref={inputRef}
+      ></textarea>
     </main>
   );
 }
