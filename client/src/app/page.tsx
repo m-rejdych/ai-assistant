@@ -14,14 +14,16 @@ export default function Home() {
       inputRef.current.focus();
     };
 
-    window.addEventListener('focus', focusInput);
-
-    (async () => {
+    const initialSetup = async () => {
       await invoke('resize_window');
       if (!(await isRegistered('Alt+Shift+Ctrl+Cmd+A'))) {
         await register('Alt+Shift+Ctrl+Cmd+A', () => invoke('toggle_window'));
       }
-    })();
+    };
+
+    initialSetup();
+
+    window.addEventListener('focus', focusInput);
 
     return () => {
       window.removeEventListener('focus', focusInput);

@@ -26,6 +26,10 @@
       },
       "globalShortcut": {
         "all": true
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$APPLOCALDATA"]
       }
     },
     "bundle": {
@@ -43,7 +47,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.ai-assistant.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
