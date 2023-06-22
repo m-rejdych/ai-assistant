@@ -67,10 +67,8 @@ fn has_api_key(app: AppHandle) -> bool {
         Err(_) => return false,
     };
 
-    for line in content.lines() {
-        if line.starts_with("API_KEY") {
-            return true;
-        }
+    if content.lines().any(|line| line.starts_with("API_KEY=")) {
+        return true;
     }
 
     return false;
@@ -82,10 +80,41 @@ fn save_api_key(app: AppHandle, key: String) {
 
     let api_key = format!("API_KEY={}", &key);
     let content = if config_file.exists() {
-        format!("{}\n{}", file::read_string(&config_file).unwrap(), api_key)
+        let current_config = file::read_string(&config_file).unwrap();
+        if current_config.len() == 0 {
+            api_key
+        } else {
+            format!("{}{}", current_config, api_key)
+        }
     } else {
         api_key
     };
 
     fs::write(config_file, content).unwrap();
+}
+
+fn get_api_key(app: &AppHandle) -> Option<String> {
+    let config_file = match app.path_resolver().app_local_data_dir() {
+        Some(path) => path,
+        None => return None,
+    };
+
+    if !config_file.exists() || !config_file.is_file() {
+        return None;
+    }
+
+    let content = match file::read_string(config_file) {
+        Ok(content) => content,
+        Err(_) => return None,
+    };
+
+    let api_key = match content.lines().find(|line| line.starts_with("API_KEY=")) {
+        Some(line) => line,
+        None => return None,
+    };
+
+    match Vec::from_iter(api_key.split("=")).get(1) {
+        Some(api_key) => Some(api_key.to_string()),
+        None => None,
+    }
 }

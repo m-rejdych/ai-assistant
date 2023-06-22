@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { register, isRegistered } from '@tauri-apps/api/globalShortcut';
 
 export default function Home() {
+  const [isInit, setIsInit] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
+  const [apiKeyValue, setApiKeyValue] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -19,6 +22,9 @@ export default function Home() {
       if (!(await isRegistered('Alt+Shift+Ctrl+Cmd+A'))) {
         await register('Alt+Shift+Ctrl+Cmd+A', () => invoke('toggle_window'));
       }
+
+      setHasApiKey(await invoke('has_api_key'));
+      setIsInit(true);
     };
 
     initialSetup();
@@ -30,13 +36,43 @@ export default function Home() {
     };
   }, []);
 
+  const handleKeyDown = async (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ): Promise<void> => {
+    if (e.key !== 'Enter') return;
+
+    await invoke('save_api_key', { key: apiKeyValue });
+    setHasApiKey(await invoke('has_api_key'));
+  };
+
+  const handleChangeApiKey = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setApiKeyValue(e.target.value);
+  };
+
   return (
     <main className="h-full px-4 py-8 flex flex-col">
-      <div className="flex-1" />
-      <textarea
-        className="textarea textarea-primary resize-none"
-        ref={inputRef}
-      ></textarea>
+      {isInit && hasApiKey ? (
+        <>
+          <div className="flex-1" />
+          <textarea
+            className="textarea textarea-primary resize-none"
+            placeholder="Enter prompt"
+            ref={inputRef}
+          ></textarea>
+        </>
+      ) : (
+        <>
+          <div className="flex-1" />
+          <input
+            type="text"
+            placeholder="Enter API key"
+            className="input input-bordered input-primary w-full"
+            value={apiKeyValue}
+            onChange={handleChangeApiKey}
+            onKeyDown={handleKeyDown}
+          />
+        </>
+      )}
     </main>
   );
 }
