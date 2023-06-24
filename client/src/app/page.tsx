@@ -9,22 +9,33 @@ export default function Home() {
   const [hasApiKey, setHasApiKey] = useState(false);
   const [apiKeyValue, setApiKeyValue] = useState('');
   const [error, setError] = useState(false);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+  const apiKeyRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const focusInput = (): void => {
-      if (!inputRef.current) return;
-
-      inputRef.current.focus();
+      if (promptRef.current) promptRef.current.focus();
+      else if (apiKeyRef.current) apiKeyRef.current.focus();
     };
 
     const initialSetup = async () => {
       await invoke('resize_window');
       if (!(await isRegistered('Alt+Shift+Ctrl+Cmd+A'))) {
-        await register('Alt+Shift+Ctrl+Cmd+A', () => invoke('toggle_window'));
+        await register('Alt+Shift+Ctrl+Cmd+A', async () =>
+          invoke('toggle_window'),
+        );
       }
 
-      setHasApiKey(await invoke('has_api_key'));
+      const hasApiKey = await invoke<boolean>('has_api_key');
+
+      if (hasApiKey) {
+        const isValid = await invoke<boolean>('validate_stored_api_key');
+        if (!isValid) await invoke('clear_api_key');
+        setHasApiKey(isValid);
+      } else {
+        setHasApiKey(false);
+      }
+
       setIsInit(true);
     };
 
@@ -44,7 +55,7 @@ export default function Home() {
 
     try {
       await invoke('save_api_key', { key: apiKeyValue });
-      setHasApiKey(await invoke('has_api_key'));
+      setHasApiKey(await invoke<boolean>('has_api_key'));
       if (error) setError(false);
     } catch {
       setError(true);
@@ -56,30 +67,40 @@ export default function Home() {
     setApiKeyValue(e.target.value);
   };
 
+  if (!isInit) return null;
+
   return (
     <main className="h-full px-4 py-8 flex flex-col">
-      {isInit && hasApiKey ? (
+      {hasApiKey ? (
         <>
           <div className="flex-1" />
           <textarea
             className="textarea textarea-primary resize-none"
             placeholder="Enter prompt"
-            ref={inputRef}
+            ref={promptRef}
           ></textarea>
         </>
       ) : (
         <>
           <div className="flex-1" />
-          <input
-            type="text"
-            placeholder="Enter API key"
-            className={`input input-bordered ${
-              error ? 'input-error' : 'input-primary'
-            } w-full`}
-            value={apiKeyValue}
-            onChange={handleChangeApiKey}
-            onKeyDown={handleKeyDown}
-          />
+          <div className="form-control w-full">
+            {error && (
+              <label className="label">
+                <span className="label-text text-error">Invalid API key</span>
+              </label>
+            )}
+            <input
+              ref={apiKeyRef}
+              type="text"
+              placeholder="Enter API key"
+              className={`input input-bordered ${
+                error ? 'input-error' : 'input-primary'
+              } w-full`}
+              value={apiKeyValue}
+              onChange={handleChangeApiKey}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
         </>
       )}
     </main>
