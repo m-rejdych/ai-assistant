@@ -8,6 +8,7 @@ export default function Home() {
   const [isInit, setIsInit] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [apiKeyValue, setApiKeyValue] = useState('');
+  const [error, setError] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -39,13 +40,19 @@ export default function Home() {
   const handleKeyDown = async (
     e: React.KeyboardEvent<HTMLInputElement>,
   ): Promise<void> => {
-    if (e.key !== 'Enter') return;
+    if (e.key !== 'Enter' || !apiKeyValue) return;
 
-    await invoke('save_api_key', { key: apiKeyValue });
-    setHasApiKey(await invoke('has_api_key'));
+    try {
+      await invoke('save_api_key', { key: apiKeyValue });
+      setHasApiKey(await invoke('has_api_key'));
+      if (error) setError(false);
+    } catch {
+      setError(true);
+    }
   };
 
   const handleChangeApiKey = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (error) setError(false);
     setApiKeyValue(e.target.value);
   };
 
@@ -66,7 +73,9 @@ export default function Home() {
           <input
             type="text"
             placeholder="Enter API key"
-            className="input input-bordered input-primary w-full"
+            className={`input input-bordered ${
+              error ? 'input-error' : 'input-primary'
+            } w-full`}
             value={apiKeyValue}
             onChange={handleChangeApiKey}
             onKeyDown={handleKeyDown}
