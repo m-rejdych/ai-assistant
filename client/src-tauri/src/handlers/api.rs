@@ -1,9 +1,9 @@
 use serde;
 use serde_json::de;
-use std::fs;
+use std::{env, fs};
 use tauri::{
     api::{file, http},
-    command, AppHandle, Error
+    command, AppHandle, Error,
 };
 
 #[derive(serde::Deserialize)]
@@ -81,8 +81,11 @@ pub async fn validate_stored_api_key(app: AppHandle) -> bool {
 }
 
 #[command]
-pub fn clear_api_key(app: AppHandle) -> Result<(), Error>  {
-    let config_file = app.path_resolver().app_local_data_dir().ok_or(Error::FailedToSendMessage)?;
+pub fn clear_api_key(app: AppHandle) -> Result<(), Error> {
+    let config_file = app
+        .path_resolver()
+        .app_local_data_dir()
+        .ok_or(Error::FailedToSendMessage)?;
 
     if !config_file.exists() || !config_file.is_file() {
         return Err(Error::FailedToSendMessage);
@@ -131,7 +134,12 @@ fn get_api_key(app: &AppHandle) -> Option<String> {
 async fn validate_api_key(api_key: &str) -> Result<bool, Error> {
     let client = http::ClientBuilder::new().build()?;
 
-    let req = http::HttpRequestBuilder::new("GET", "http://localhost:8080/auth/validate-api-key")?
+    let url = format!(
+        "{}/auth/validate-api-key",
+        env::var("API_URL").unwrap_or("http://localhost:8080".to_string())
+    );
+
+    let req = http::HttpRequestBuilder::new("GET", url)?
         .header("Authorization", format!("Bearer {}", api_key))?;
     let json = client.send(req).await?.read().await?.data.to_string();
 

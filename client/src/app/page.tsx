@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
-import { register, isRegistered } from '@tauri-apps/api/globalShortcut';
+import {
+  register,
+  isRegistered,
+  unregister,
+} from '@tauri-apps/api/globalShortcut';
+
+const HOTKEY = 'Alt+Shift+Ctrl+A' as const;
 
 export default function Home() {
   const [isInit, setIsInit] = useState(false);
@@ -20,10 +26,9 @@ export default function Home() {
 
     const initialSetup = async () => {
       await invoke('resize_window');
-      if (!(await isRegistered('Alt+Shift+Ctrl+Cmd+A'))) {
-        await register('Alt+Shift+Ctrl+Cmd+A', async () =>
-          invoke('toggle_window'),
-        );
+      await unregister('Alt+Shift+Ctrl+Cmd+A');
+      if (!(await isRegistered(HOTKEY))) {
+        await register(HOTKEY, async () => invoke('toggle_window'));
       }
 
       const hasApiKey = await invoke<boolean>('has_api_key');
