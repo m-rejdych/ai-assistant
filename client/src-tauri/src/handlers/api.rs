@@ -37,7 +37,10 @@ pub fn has_api_key(app: AppHandle) -> bool {
 
 #[command]
 pub async fn save_api_key(app: AppHandle, key: String) -> Result<(), Error> {
-    let config_file = app.path_resolver().app_local_data_dir().unwrap();
+    let config_file = app
+        .path_resolver()
+        .app_local_data_dir()
+        .ok_or(Error::FailedToSendMessage)?;
 
     let is_valid = validate_api_key(&key).await?;
 
@@ -77,7 +80,7 @@ pub async fn validate_stored_api_key(app: AppHandle) -> bool {
         Err(_) => return false,
     };
 
-    return is_valid;
+    is_valid
 }
 
 #[command]
