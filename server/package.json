@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "nodemon --exec \"ts-node src/index.ts\" --extensions ",
+    "dev": "nodemon --ext ts --files src/index.ts",
     "build": "webpack"
   },
   "keywords": [],

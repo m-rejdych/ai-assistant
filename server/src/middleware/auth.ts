@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 
-import { getApiKeyFromAuthorization } from '../util/auth';
-import { validateApiKey } from '../controllers/auth';
+import { getApiKeyFromAuthorization, sha256 } from '../util/auth';
+import { prisma } from '../util/prisma';
 import { StatusError } from '../models/StatusError';
 
 export const validateApiKeyFromAuthHeader: RequestHandler = async (
@@ -22,11 +22,16 @@ export const validateApiKeyFromAuthHeader: RequestHandler = async (
       throw new StatusError('Not authorized', 401);
     }
 
-    const isValid = await validateApiKey(apiKey);
+    const hashedKey = sha256(apiKey);
+    const matchedKey = await prisma.apiKey.findUnique({
+      where: { key: hashedKey },
+    });
 
-    if (!isValid) {
+    if (!matchedKey) {
       throw new StatusError('Not authorized', 401);
     }
+
+    req.apiKey = matchedKey.key;
 
     next();
   } catch (error) {
