@@ -108,7 +108,7 @@ pub fn clear_api_key(app: AppHandle) -> Result<(), Error> {
     Ok(())
 }
 
-fn get_api_key(app: &AppHandle) -> Option<String> {
+pub fn get_api_key(app: &AppHandle) -> Option<String> {
     let config_file = match app.path_resolver().app_local_data_dir() {
         Some(path) => path,
         None => return None,

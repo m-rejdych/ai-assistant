@@ -1,2 +1,3 @@
 pub mod window;
-pub mod api;
+pub mod auth;
+pub mod chat;
