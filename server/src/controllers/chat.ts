@@ -5,7 +5,12 @@ const OPEN_AI_COMPLETIONS =
   'https://api.openai.com/v1/chat/completions' as const;
 
 type Message = Prisma.MessageGetPayload<{
-  select: { role: { select: { type: true } }; id: true; content: true };
+  select: {
+    role: { select: { type: true } };
+    id: true;
+    content: true;
+    createdAt: true;
+  };
 }>;
 
 interface SendMessageData {
@@ -41,7 +46,12 @@ export const sendMessage = async (
 
   const userMessage = await prisma.message.create({
     data: { roleId: userRole.id, apiKeyId: key.id, content },
-    select: { role: { select: { type: true } }, id: true, content: true },
+    select: {
+      role: { select: { type: true } },
+      id: true,
+      content: true,
+      createdAt: true,
+    },
   });
 
   const contextDate = new Date(Date.now() - 10 * 60_000);
@@ -78,7 +88,12 @@ export const sendMessage = async (
       apiKeyId: key.id,
       content: completionResult.choices[0].message.content,
     },
-    select: { role: { select: { type: true } }, id: true, content: true },
+    select: {
+      role: { select: { type: true } },
+      id: true,
+      content: true,
+      createdAt: true,
+    },
   });
 
   return {
@@ -95,9 +110,14 @@ export const getMessages = async (apiKey: string): Promise<Message[]> => {
   }
 
   const messages = await prisma.message.findMany({
-      where: { apiKeyId: key.id },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true, content: true, role: { select: { type: true } } },
+    where: { apiKeyId: key.id },
+    orderBy: { createdAt: 'asc' },
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      role: { select: { type: true } },
+    },
   });
 
   return messages;
