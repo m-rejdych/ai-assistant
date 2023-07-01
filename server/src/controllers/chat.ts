@@ -86,3 +86,19 @@ export const sendMessage = async (
     assistantMessage,
   };
 };
+
+export const getMessages = async (apiKey: string): Promise<Message[]> => {
+  const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
+
+  if (!key) {
+    throw new Error('Api key not found.');
+  }
+
+  const messages = await prisma.message.findMany({
+      where: { apiKeyId: key.id },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, content: true, role: { select: { type: true } } },
+  });
+
+  return messages;
+};
