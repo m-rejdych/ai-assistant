@@ -40,15 +40,16 @@ export const addContextMessage = async (
   });
 
   const prompt = contextSummary
-    ? `You will be given summary about some user labeled with {{summary}}. Please create a similar summary, but include information from user message, labeled {{message}}, to it.
+    ? `You will be given summary about some user labeled with {{summary}}. Please create a similar summary, but include information from user message, labeled {{message}}, to it. Always answer with sort bullet points about the user and nothing more.
 
 {{summary}}
 ${contextSummary.content}
 
+###
+
 {{message}}
-${contextMessage.content}
- `
-    : `You will be given given a user message labeled {{message}}. Please create a summary about the user from the message you will be given.
+${contextMessage.content}`
+    : `You will be given given a user message labeled {{message}}. Please create a summary about the user from the message you will be given. Always answer with short bullet about the user and nothing more.
 
 {{message}}
 ${contextMessage.content}`;

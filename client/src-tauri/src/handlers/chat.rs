@@ -1,4 +1,4 @@
-use serde_json::{Map, Value};
+use serde_json::{json, Value};
 use std::env;
 use tauri::{api::http, command, AppHandle, Error};
 
@@ -15,18 +15,18 @@ pub async fn send_message(app: AppHandle, content: String) -> Result<Value, Erro
         env::var("API_URL").unwrap_or("http://localhost:8080".to_string())
     );
 
-    let mut body_values = Map::new();
-    body_values.insert("content".to_string(), Value::String(content));
-
-    let body = Value::Object(body_values);
-
     let req = http::HttpRequestBuilder::new("POST", url)?
         .header("Authorization", format!("Bearer {}", api_key))?
-        .body(http::Body::Json(body));
+        .body(http::Body::Json(json!({ "content": content })));
 
-    let data = client.send(req).await?.read().await?.data;
+    let http::ResponseData { data, status, .. } = client.send(req).await?.read().await?;
 
-    Ok(data)
+    if status >= 400 {
+        eprintln!("{}", data);
+        Err(Error::FailedToSendMessage)
+    } else {
+        Ok(data)
+    }
 }
 
 #[command]
@@ -43,7 +43,12 @@ pub async fn get_messages(app: AppHandle) -> Result<Value, Error> {
     let req = http::HttpRequestBuilder::new("GET", url)?
         .header("Authorization", format!("Bearer {}", api_key))?;
 
-    let data = client.send(req).await?.read().await?.data;
+    let http::ResponseData { data, status, .. } = client.send(req).await?.read().await?;
 
-    Ok(data)
+    if status >= 400 {
+        eprintln!("{}", data);
+        Err(Error::FailedToSendMessage)
+    } else {
+        Ok(data)
+    }
 }

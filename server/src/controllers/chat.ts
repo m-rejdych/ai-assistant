@@ -78,9 +78,13 @@ export const sendMessage = async (
     orderBy: { createdAt: 'desc' },
     select: { content: true },
   });
+  const systemMessage = userContext
+    ? `Information about user:
+${userContext.content}`
+    : null;
 
   const messages = userContext
-    ? [{ role: 'system', content: userContext.content }, ...contextMessages]
+    ? [{ role: 'system', content: systemMessage }, ...contextMessages]
     : contextMessages;
 
   const response = await fetch(OPEN_AI_COMPLETIONS, {
@@ -91,8 +95,8 @@ export const sendMessage = async (
     },
     body: JSON.stringify({
       model: 'gpt-3.5-turbo',
-      messages: messages,
       temperature: 0.7,
+      messages,
     }),
   });
 

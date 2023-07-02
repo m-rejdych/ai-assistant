@@ -144,9 +144,15 @@ async fn validate_api_key(api_key: &str) -> Result<bool, Error> {
 
     let req = http::HttpRequestBuilder::new("GET", url)?
         .header("Authorization", format!("Bearer {}", api_key))?;
-    let json = client.send(req).await?.read().await?.data.to_string();
+    let http::ResponseData { data, status, .. } = client.send(req).await?.read().await?;
 
-    let ValidateApiKeyData { is_valid } = de::from_str::<ValidateApiKeyData>(&json)?;
+    if status >= 400 {
+        eprintln!("{}", data);
+        Err(Error::FailedToSendMessage)
+    } else {
+        let ValidateApiKeyData { is_valid } =
+            de::from_str::<ValidateApiKeyData>(&data.to_string())?;
 
-    return Ok(is_valid);
+        Ok(is_valid)
+    }
 }

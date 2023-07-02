@@ -88,20 +88,40 @@ export default function Home() {
   const handleKeyDownPrompt = async (
     e: React.KeyboardEvent<HTMLTextAreaElement>,
   ): Promise<void> => {
+    const currentPrompt = prompt.trim();
+
     if (e.key !== 'Enter' || e.shiftKey) return;
-    if (!prompt.trim() || pendingPrompt) return;
+    if (!currentPrompt || pendingPrompt) return;
     e.preventDefault();
 
-    const currentPrompt = prompt;
     setPrompt('');
-    setPendingPrompt(currentPrompt);
 
     try {
-      const { userMessage, assistantMessage } = await invoke<SendMessageData>(
-        'send_message',
-        { content: currentPrompt },
-      );
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      if (currentPrompt.startsWith('/')) {
+        const [cmd, ...content] = currentPrompt.split(' ');
+
+        switch (cmd) {
+          case '/ctx': {
+            if (!content.length) break;
+
+            const contentStr = content.join(' ');
+            setPendingPrompt(contentStr);
+
+            await invoke('add_context_message', { content: contentStr });
+            break;
+          }
+          default:
+            break;
+        }
+      } else {
+        setPendingPrompt(currentPrompt);
+
+        const { userMessage, assistantMessage } = await invoke<SendMessageData>(
+          'send_message',
+          { content: currentPrompt },
+        );
+        setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      }
     } finally {
       setPendingPrompt('');
     }
@@ -119,9 +139,8 @@ export default function Home() {
     const hour = date.getHours();
     const minutes = date.getMinutes();
 
-    return `${hour > 10 ? hour : `0${hour}`}:${
-      minutes > 10 ? minutes : `0${minutes}`
-    }`;
+    return `${hour > 10 ? hour : `0${hour}`}:${minutes > 10 ? minutes : `0${minutes}`
+      }`;
   };
 
   if (!isInit) return null;
@@ -165,12 +184,13 @@ export default function Home() {
                   )}
                 </div>
                 <div
-                  className={`chat-bubble${
-                    isUser(type) ? ' chat-bubble-primary' : ''
-                  }`}
+                  className={`chat-bubble${isUser(type) ? ' chat-bubble-primary' : ''
+                    }`}
                 >
                   {content.split('\n').map((chunk, index) => (
-                    <p className="min-h-6" key={`${id}-${index}`}>{chunk}</p>
+                    <p className="min-h-6" key={`${id}-${index}`}>
+                      {chunk}
+                    </p>
                   ))}
                 </div>
               </div>
@@ -235,9 +255,8 @@ export default function Home() {
               ref={apiKeyRef}
               type="text"
               placeholder="Enter API key"
-              className={`input input-bordered ${
-                error ? 'input-error' : 'input-primary'
-              } w-full`}
+              className={`input input-bordered ${error ? 'input-error' : 'input-primary'
+                } w-full`}
               value={apiKeyValue}
               onChange={handleChangeApiKey}
               onKeyDown={handleKeyDownApiKey}
