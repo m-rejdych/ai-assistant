@@ -15,6 +15,7 @@ model ApiKey {
   key       String    @unique
   createdAt DateTime  @default(now())
   messages  Message[]
+  contexts  Context[]
 }
 
 model Message {
@@ -33,8 +34,29 @@ model Role {
   messages Message[]
 }
 
+model Context {
+  id        String      @id @default(uuid())
+  createdAt DateTime    @default(now())
+  content   String
+  typeId    String
+  apiKeyId  String
+  type      ContextType @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  apiKey    ApiKey      @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+}
+
+model ContextType {
+  id       String          @id @default(uuid())
+  name     ContextTypeName @unique
+  contexts Context[]
+}
+
 enum RoleType {
   System
   Assistant
   User
+}
+
+enum ContextTypeName {
+  UserMessage
+  Summary
 }

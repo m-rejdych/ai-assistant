@@ -1,8 +1,7 @@
 import { prisma } from '../util/prisma';
-import { RoleType, type Prisma } from '@prisma/client';
+import { RoleType, ContextTypeName, type Prisma } from '@prisma/client';
 
-const OPEN_AI_COMPLETIONS =
-  'https://api.openai.com/v1/chat/completions' as const;
+import { OPEN_AI_COMPLETIONS } from '../constants/openai';
 
 type Message = Prisma.MessageGetPayload<{
   select: {
@@ -44,8 +43,15 @@ export const sendMessage = async (
     throw new Error('Assistant role not found.');
   }
 
+  const contextSummaryType = await prisma.contextType.findUnique({
+    where: { name: ContextTypeName.Summary },
+  });
+  if (!contextSummaryType) {
+    throw new Error('Context type not found.');
+  }
+
   const userMessage = await prisma.message.create({
-    data: { roleId: userRole.id, apiKeyId: key.id, content },
+    data: { roleId: userRole.id, apiKeyId: key.id, content: content.trim() },
     select: {
       role: { select: { type: true } },
       id: true,
@@ -58,7 +64,7 @@ export const sendMessage = async (
 
   const contextMessages = (
     await prisma.message.findMany({
-      where: { createdAt: { gte: contextDate } },
+      where: { createdAt: { gte: contextDate }, apiKeyId: key.id },
       orderBy: { createdAt: 'asc' },
       select: { content: true, role: { select: { type: true } } },
     })
@@ -66,6 +72,16 @@ export const sendMessage = async (
     content,
     role: type.toLowerCase(),
   }));
+
+  const userContext = await prisma.context.findFirst({
+    where: { apiKeyId: key.id, typeId: contextSummaryType.id },
+    orderBy: { createdAt: 'desc' },
+    select: { content: true },
+  });
+
+  const messages = userContext
+    ? [{ role: 'system', content: userContext.content }, ...contextMessages]
+    : contextMessages;
 
   const response = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',
@@ -75,7 +91,7 @@ export const sendMessage = async (
     },
     body: JSON.stringify({
       model: 'gpt-3.5-turbo',
-      messages: contextMessages,
+      messages: messages,
       temperature: 0.7,
     }),
   });
