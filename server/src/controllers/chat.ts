@@ -1,5 +1,5 @@
 import { prisma } from '../util/prisma';
-import { RoleType, ContextTypeName, type Prisma } from '@prisma/client';
+import { RoleType, type Prisma } from '@prisma/client';
 
 import { OPEN_AI_COMPLETIONS } from '../constants/openai';
 
@@ -43,13 +43,6 @@ export const sendMessage = async (
     throw new Error('Assistant role not found.');
   }
 
-  const contextSummaryType = await prisma.contextType.findUnique({
-    where: { name: ContextTypeName.Summary },
-  });
-  if (!contextSummaryType) {
-    throw new Error('Context type not found.');
-  }
-
   const userMessage = await prisma.message.create({
     data: { roleId: userRole.id, apiKeyId: key.id, content: content.trim() },
     select: {
@@ -73,9 +66,8 @@ export const sendMessage = async (
     role: type.toLowerCase(),
   }));
 
-  const userContext = await prisma.context.findFirst({
-    where: { apiKeyId: key.id, typeId: contextSummaryType.id },
-    orderBy: { createdAt: 'desc' },
+  const userContext = await prisma.context.findUnique({
+    where: { apiKeyId: key.id },
     select: { content: true },
   });
   const systemMessage = userContext
