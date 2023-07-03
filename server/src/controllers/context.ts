@@ -20,7 +20,7 @@ export const addContextMessage = async (
   });
 
   const prompt = userContext
-    ? `You will be given summary about some user labeled with {{summary}}. Please create a similar summary, but include information from user message, labeled {{message}}, to it. Always answer with sort bullet points about the user and nothing more.
+    ? `You will be given summary about some user labeled with {{summary}}. Please create a similar summary - include all of the information from previous summary and extend it with information from user message labeled {{message}}. Always answer with sort bullet points about the user and nothing more.
 
 {{summary}}
 ${userContext.content}

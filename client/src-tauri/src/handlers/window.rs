@@ -10,11 +10,11 @@ pub fn resize_window(window: Window) -> Result<(), Error> {
 
     window.set_size(LogicalSize {
         width: (screen_size.width as f64 * 0.15).round() as u32,
-        height: screen_size.height - 25,
+        height: ((screen_size.height as f64 / monitor.scale_factor()) - 25.0).round() as u32,
     })?;
     window.set_position(LogicalPosition {
         x: screen_position.x,
-        y: screen_position.y,
+        y: screen_position.y + 25,
     })?;
     window.show()?;
 

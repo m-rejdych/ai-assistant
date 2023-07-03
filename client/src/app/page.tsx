@@ -11,6 +11,7 @@ import {
 import { type Message, type SendMessageData, RoleType } from '../types/chat';
 
 const HOTKEY = 'Alt+Shift+Ctrl+A' as const;
+const HOTKEY_RESIZE = 'Alt+Shift+Ctrl+S' as const;
 
 export default function Home() {
   const [isInit, setIsInit] = useState(false);
@@ -32,9 +33,14 @@ export default function Home() {
 
     const initialSetup = async () => {
       await invoke('resize_window');
-      await unregister('Alt+Shift+Ctrl+Cmd+A');
       if (!(await isRegistered(HOTKEY))) {
         await register(HOTKEY, async () => invoke('toggle_window'));
+      }
+      if (!(await isRegistered(HOTKEY_RESIZE))) {
+        await register(
+          HOTKEY_RESIZE,
+          async () => await invoke('resize_window'),
+        );
       }
 
       const hasApiKey = await invoke<boolean>('has_api_key');
