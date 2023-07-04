@@ -1,10 +1,19 @@
 import { Router } from 'express';
 
 import { validateApiKeyFromAuthHeader } from '../middleware/auth';
-import { sendMessageHandler, getMessagesHandler } from '../handlers/chat';
+import {
+  sendMessageHandler,
+  getMessagesByChatIdHandler,
+  getActiveChatHandler,
+  getChatsHandler,
+} from '../handlers/chat';
 
 export const router = Router();
 
 router.post('/send-message', validateApiKeyFromAuthHeader, sendMessageHandler);
 
-router.get('/get-messages', validateApiKeyFromAuthHeader, getMessagesHandler);
+router.get('/get-messages-by-chat-id', validateApiKeyFromAuthHeader, getMessagesByChatIdHandler);
+
+router.get('/get-active-chat', validateApiKeyFromAuthHeader, getActiveChatHandler);
+
+router.get('/get-chats', validateApiKeyFromAuthHeader, getChatsHandler);
