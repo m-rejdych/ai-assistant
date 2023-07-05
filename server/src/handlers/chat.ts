@@ -1,7 +1,6 @@
 import type { RequestHandler } from 'express';
 
 import { sendMessage, getMessagesByChatId, getActiveChatId, getChats } from '../controllers/chat';
-import { throwErr } from '../util/error';
 
 interface SendMessageReqBody {
   content: string;
@@ -32,7 +31,7 @@ export const getMessagesByChatIdHandler: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { chatId } = req.query;
-    if (!chatId) throwErr('"chatId" query is required');
+    if (!chatId) throw new Error('"chatId" query is required');
 
     const messages = await getMessagesByChatId(chatId, req.apiKey!);
 

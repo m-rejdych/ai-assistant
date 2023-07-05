@@ -1,30 +1,20 @@
 use serde_json::json;
-use std::env;
 use tauri::{api::http, command, AppHandle, Error};
 
-use super::auth::get_api_key;
+use super::super::util::api::{create_authorized_req, get_api_url};
 
 #[command]
 pub async fn add_context_message(app: AppHandle, content: String) -> Result<(), Error> {
-    let api_key = get_api_key(&app).ok_or(Error::FailedToSendMessage)?;
-
     let client = http::ClientBuilder::new().build()?;
 
     let body = http::Body::Json(json!({ "content": content }));
+    let url = format!("{}/context/add-context-message", get_api_url());
 
-    let url = format!(
-        "{}/context/add-context-message",
-        env::var("API_URL").unwrap_or("http://localhost:8080".to_string())
-    );
+    let req = create_authorized_req(&app, "POST", url)?.body(body);
+    let res = client.send(req).await?;
 
-    let req = http::HttpRequestBuilder::new("POST", url)?
-        .header("Authorization", format!("Bearer {}", api_key))?
-        .body(body);
-
-    let response = client.send(req).await?;
-
-    if response.status().as_u16() >= 400 {
-        let data = response.read().await?.data;
+    if res.status().as_u16() >= 400 {
+        let data = res.read().await?.data;
         eprintln!("{}", data);
         Err(Error::FailedToSendMessage)
     } else {
