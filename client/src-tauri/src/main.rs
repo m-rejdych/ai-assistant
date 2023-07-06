@@ -5,7 +5,7 @@ mod handlers;
 mod util;
 use handlers::auth::{clear_api_key, has_api_key, save_api_key, validate_stored_api_key};
 use handlers::window::{resize_window, toggle_window};
-use handlers::chat::{send_message, get_messages_by_chat_id, get_acitve_chat, get_chats};
+use handlers::chat::{send_message, get_messages_by_chat_id, get_active_chat, get_chats};
 use handlers::context::add_context_message;
 
 fn main() {
@@ -19,7 +19,7 @@ fn main() {
             clear_api_key,
             send_message,
             get_messages_by_chat_id,
-            get_acitve_chat,
+            get_active_chat,
             get_chats,
             add_context_message,
         ])

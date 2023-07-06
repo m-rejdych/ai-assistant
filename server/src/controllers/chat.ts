@@ -74,7 +74,7 @@ ${userContext.content}`
 
   const newUserMessage = { role: 'user', content };
 
-  const messages = userContext
+  const messages = systemMessage
     ? [{ role: 'system', content: systemMessage }, ...contextMessages, newUserMessage]
     : [...contextMessages, newUserMessage];
 
@@ -92,13 +92,16 @@ ${userContext.content}`
   });
 
   const completionResult = await completionResponse.json();
-  const newAssistantMessage = completionResult.choices[0].message.content;
+  const newAssistantMessage = {
+    role: 'assistant',
+    content: completionResult.choices[0].message.content,
+  };
 
   if (!chat) {
     const chatNameMessage = {
       role: 'user',
       content:
-        'Based on 2 previous message, generate short title describing what the conversation is about. Respond with the title without any punctuation and nothing more.',
+        'Based on 2 previous message, generate short title describing what the conversation is about. Respond with the title without any punctuation and nothing more. Maximum word count for title is 5.',
     };
 
     const chatNameCompletionResponse = await fetch(OPEN_AI_COMPLETIONS, {
@@ -124,7 +127,11 @@ ${userContext.content}`
   }
 
   const userMessage = await prisma.message.create({
-    data: { chatId: chat.id, roleId: userRole.id, content: content.trim() },
+    data: {
+      chatId: chat.id,
+      roleId: userRole.id,
+      content: content.trim(),
+    },
     select: {
       role: { select: { type: true } },
       id: true,
@@ -146,6 +153,7 @@ ${userContext.content}`
       createdAt: true,
     },
   });
+  await prisma.chat.update({ where: { id: chat.id }, data: { updatedAt: new Date() } });
 
   const { id, name } = chat;
 
@@ -181,17 +189,18 @@ export const getMessagesByChatId = async (chatId: string, apiKey: string): Promi
   return messages;
 };
 
-export const getActiveChatId = async (apiKey: string): Promise<string | undefined> => {
+export const getActiveChatId = async (apiKey: string): Promise<string> => {
   const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
   if (!key) throw new Error('Api key not found.');
 
   const lastUpdatedDate = new Date(Date.now() - 10 * 60_000);
   const activeChat = await prisma.chat.findFirst({
     where: { apiKeyId: key.id, updatedAt: { gte: lastUpdatedDate } },
+    orderBy: { createdAt: 'desc' },
     select: { id: true },
   });
 
-  return activeChat?.id;
+  return activeChat?.id ?? '';
 };
 
 export const getChats = async (apiKey: string): Promise<Chat[]> => {

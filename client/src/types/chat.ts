@@ -13,7 +13,13 @@ export interface Message {
   };
 }
 
+export interface Chat {
+  id: string;
+  name: string;
+}
+
 export interface SendMessageData {
   userMessage: Message;
   assistantMessage: Message;
+  chat: Chat;
 }

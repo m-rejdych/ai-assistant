@@ -5,12 +5,20 @@ use tauri::{api::http, command, AppHandle, Error};
 use super::super::util::api::{create_authorized_req, get_api_url, unwrap_data};
 
 #[command]
-pub async fn send_message(app: AppHandle, content: String) -> Result<Value, Error> {
+pub async fn send_message(
+    app: AppHandle,
+    content: String,
+    chat_id: Option<String>,
+) -> Result<Value, Error> {
     let client = http::ClientBuilder::new().build()?;
 
+    let json_body = if let Some(chat_id) = chat_id {
+        json!({ "content": content, "chatId": chat_id })
+    } else {
+        json!({ "content": content })
+    };
     let url = format!("{}/chat/send-message", get_api_url());
-    let req = create_authorized_req(&app, "POST", url)?
-        .body(http::Body::Json(json!({ "content": content })));
+    let req = create_authorized_req(&app, "POST", url)?.body(http::Body::Json(json_body));
     let res = client.send(req).await?.read().await?;
 
     let data = unwrap_data(res)?;
@@ -34,7 +42,7 @@ pub async fn get_messages_by_chat_id(app: AppHandle, chat_id: String) -> Result<
 }
 
 #[command]
-pub async fn get_acitve_chat(app: AppHandle) -> Result<Value, Error> {
+pub async fn get_active_chat(app: AppHandle) -> Result<Value, Error> {
     let url = format!("{}/chat/get-active-chat", get_api_url());
 
     let client = http::ClientBuilder::new().build()?;

@@ -8,14 +8,18 @@ pub fn resize_window(window: Window) -> Result<(), Error> {
     let screen_size = monitor.size();
     let screen_position = monitor.position();
 
-    window.set_size(LogicalSize {
+    let size = LogicalSize {
         width: (screen_size.width as f64 * 0.15).round() as u32,
         height: ((screen_size.height as f64 / monitor.scale_factor()) - 25.0).round() as u32,
-    })?;
-    window.set_position(LogicalPosition {
+    };
+    let position = LogicalPosition {
         x: screen_position.x,
         y: screen_position.y + 25,
-    })?;
+    };
+
+    window.set_size(size)?;
+    window.set_min_size(Some(size))?;
+    window.set_position(position)?;
     window.show()?;
 
     Ok(())

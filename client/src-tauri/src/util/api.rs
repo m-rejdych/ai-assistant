@@ -19,7 +19,7 @@ pub fn create_authorized_req(
 
     let req = http::HttpRequestBuilder::new(method, url.into())?.header(
         "Authorization",
-        format!("Bearer {}", format!("Bearer {}", api_key)),
+        format!("Bearer {}", api_key),
     )?;
 
     Ok(req)
@@ -29,6 +29,7 @@ pub fn unwrap_data(
     http::ResponseData { data, status, .. } : http::ResponseData,
 ) -> Result<Value, Error> {
     if status >= 400 {
+        eprintln!("{:?}", data);
         Err(Error::FailedToSendMessage)
     } else {
         Ok(data)
