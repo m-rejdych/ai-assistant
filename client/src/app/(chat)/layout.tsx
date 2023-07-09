@@ -12,6 +12,7 @@ import type { Chat } from '../../types/chat';
 
 const HOTKEY = 'Alt+Shift+Ctrl+A' as const;
 const HOTKEY_RESIZE = 'Alt+Shift+Ctrl+S' as const;
+const DEFAULT_THEME = 'Coffee';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -23,6 +24,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initialSetup = async (): Promise<void> => {
       try {
+        const theme = await invoke<string | null>('get_theme');
+        if (theme) {
+          document.querySelector('html')?.setAttribute('data-theme', theme.toLowerCase());
+        } else {
+          await invoke('change_theme', { theme: DEFAULT_THEME });
+        }
+
         await invoke('resize_window');
         if (!(await isRegistered(HOTKEY))) {
           await register(HOTKEY, async () => invoke('toggle_window'));
@@ -66,7 +74,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const handleSelect = (selectedId: string): void => {
     router.push(`/${selectedId}`);
   };
-  console.log(isInit);
 
   if (!isInit) return null;
 

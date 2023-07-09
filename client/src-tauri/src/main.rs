@@ -7,6 +7,7 @@ use handlers::auth::{clear_api_key, has_api_key, save_api_key, validate_stored_a
 use handlers::window::{resize_window, toggle_window};
 use handlers::chat::{send_message, get_messages_by_chat_id, get_active_chat, get_chats};
 use handlers::context::add_context_message;
+use handlers::style::{change_theme, get_theme};
 
 fn main() {
     tauri::Builder::default()
@@ -22,6 +23,8 @@ fn main() {
             get_active_chat,
             get_chats,
             add_context_message,
+            change_theme,
+            get_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

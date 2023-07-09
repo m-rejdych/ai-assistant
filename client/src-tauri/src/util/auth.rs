@@ -3,7 +3,7 @@ use serde_json::de;
 use tauri::{api::http, AppHandle, Error};
 
 use super::api::get_api_url;
-use super::data_dir::read_data_dir_file;
+use super::data_dir::get_config;
 
 #[derive(serde::Deserialize)]
 struct ValidateApiKeyData {
@@ -12,20 +12,7 @@ struct ValidateApiKeyData {
 }
 
 pub fn get_api_key(app: &AppHandle) -> Option<String> {
-    let content = match read_data_dir_file(".airc", app) {
-        Some(data) => data,
-        None => return None,
-    };
-
-    let api_key = match content.lines().find(|line| line.starts_with("API_KEY=")) {
-        Some(line) => line,
-        None => return None,
-    };
-
-    match Vec::from_iter(api_key.split("=")).get(1) {
-        Some(api_key) => Some(api_key.to_string()),
-        None => None,
-    }
+    get_config(".airc", "API_KEY", app)
 }
 
 pub async fn validate_api_key(api_key: &str) -> Result<bool, Error> {

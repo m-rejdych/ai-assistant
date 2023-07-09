@@ -101,7 +101,7 @@ ${userContext.content}`
     const chatNameMessage = {
       role: 'user',
       content:
-        'Based on 2 previous message, generate short title describing what the conversation is about. Respond with the title without any punctuation and nothing more. Maximum word count for title is 5.',
+        'Based on 2 previous messages, generate short title describing what the conversation is about. Respond with the title without any punctuation and nothing more. Maximum word count for the title is 5.',
     };
 
     const chatNameCompletionResponse = await fetch(OPEN_AI_COMPLETIONS, {
