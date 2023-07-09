@@ -1,22 +1,16 @@
 use std::fs;
 use tauri::{api::file, command, AppHandle, Error};
 
-use super::super::util::auth::{get_api_key, validate_api_key};
+use super::super::util::{
+    auth::{get_api_key, validate_api_key},
+    data_dir::{read_data_dir_file, write_data_dir_file},
+};
 
 #[command]
 pub fn has_api_key(app: AppHandle) -> bool {
-    let config_file = match app.path_resolver().app_local_data_dir() {
-        Some(config) => config,
+    let content = match read_data_dir_file(".airc", &app) {
+        Some(data) => data,
         None => return false,
-    };
-
-    if !config_file.exists() || !config_file.is_file() {
-        return false;
-    }
-
-    let content = match file::read_string(config_file) {
-        Ok(res) => res,
-        Err(_) => return false,
     };
 
     if content.lines().any(|line| line.starts_with("API_KEY=")) {
@@ -28,21 +22,17 @@ pub fn has_api_key(app: AppHandle) -> bool {
 
 #[command]
 pub async fn save_api_key(app: AppHandle, key: String) -> Result<(), Error> {
-    let config_file = app
-        .path_resolver()
-        .app_local_data_dir()
-        .ok_or(Error::FailedToSendMessage)?;
-
     let is_valid = validate_api_key(&key).await?;
-
-    let api_key = format!("API_KEY={}", &key);
 
     if !is_valid {
         return Err(Error::FailedToSendMessage);
     }
 
-    let content = if config_file.exists() {
-        let current_config = file::read_string(&config_file)?;
+    let config_file_content = read_data_dir_file(".airc", &app);
+
+    let api_key = format!("API_KEY={}", &key);
+
+    let content = if let Some(current_config) = config_file_content {
         if current_config.len() == 0 {
             api_key
         } else if current_config.ends_with("\n") {
@@ -54,7 +44,7 @@ pub async fn save_api_key(app: AppHandle, key: String) -> Result<(), Error> {
         api_key
     };
 
-    fs::write(config_file, content)?;
+    write_data_dir_file(".airc", content, &app)?;
 
     Ok(())
 }
@@ -76,16 +66,7 @@ pub async fn validate_stored_api_key(app: AppHandle) -> bool {
 
 #[command]
 pub fn clear_api_key(app: AppHandle) -> Result<(), Error> {
-    let config_file = app
-        .path_resolver()
-        .app_local_data_dir()
-        .ok_or(Error::FailedToSendMessage)?;
-
-    if !config_file.exists() || !config_file.is_file() {
-        return Err(Error::FailedToSendMessage);
-    }
-
-    let content = file::read_string(&config_file)?;
+    let content = read_data_dir_file(".airc", &app).ok_or(Error::FailedToSendMessage)?;
     let mut lines = Vec::from_iter(content.lines());
 
     if let Some(pos) = lines.iter().position(|line| line.starts_with("API_KEY=")) {
@@ -94,7 +75,7 @@ pub fn clear_api_key(app: AppHandle) -> Result<(), Error> {
         return Ok(());
     }
 
-    fs::write(config_file, lines.join("\n"))?;
+    write_data_dir_file(".airc", lines.join("\n"), &app)?;
 
     Ok(())
 }

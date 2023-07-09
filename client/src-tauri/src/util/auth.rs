@@ -1,11 +1,9 @@
 use serde;
 use serde_json::de;
-use tauri::{
-    api::{file, http},
-    AppHandle, Error,
-};
+use tauri::{api::http, AppHandle, Error};
 
 use super::api::get_api_url;
+use super::data_dir::read_data_dir_file;
 
 #[derive(serde::Deserialize)]
 struct ValidateApiKeyData {
@@ -14,18 +12,9 @@ struct ValidateApiKeyData {
 }
 
 pub fn get_api_key(app: &AppHandle) -> Option<String> {
-    let config_file = match app.path_resolver().app_local_data_dir() {
-        Some(path) => path,
+    let content = match read_data_dir_file(".airc", app) {
+        Some(data) => data,
         None => return None,
-    };
-
-    if !config_file.exists() || !config_file.is_file() {
-        return None;
-    }
-
-    let content = match file::read_string(config_file) {
-        Ok(content) => content,
-        Err(_) => return None,
     };
 
     let api_key = match content.lines().find(|line| line.starts_with("API_KEY=")) {

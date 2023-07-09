@@ -29,7 +29,7 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
     };
 
     return (
-      <div className="form-control border-t border-t-accent w-[calc(100%-0.5rem)] pt-4 mt-2 ml-1 mr-1">
+      <div className="form-control border-t border-t-accent w-[calc(100%-0.5rem)] pt-4 mt-2 mb-1 ml-1 mr-1">
         {error && (
           <label className="label">
             <span className="label-text text-error">Invalid API key</span>

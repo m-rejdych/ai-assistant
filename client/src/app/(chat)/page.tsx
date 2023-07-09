@@ -23,6 +23,16 @@ export default function Home() {
       else if (apiKeyRef.current) apiKeyRef.current.focus();
     };
 
+    window.addEventListener('focus', focusInput);
+
+    return () => {
+      window.removeEventListener('focus', focusInput);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasApiKey) return;
+
     const findActiveChat = async (): Promise<void> => {
       if (params.get('skipActiveChatCheck') === 'true') return;
 
@@ -33,25 +43,19 @@ export default function Home() {
     };
 
     findActiveChat();
-
-    window.addEventListener('focus', focusInput);
-
-    return () => {
-      window.removeEventListener('focus', focusInput);
-    };
-  }, []);
+  }, [hasApiKey]);
 
   const addNewMessages = async ({ chat: { id } }: SendMessageData): Promise<void> => {
     router.push(`/${id}`);
   };
 
   const handleSaveApiKey = async (isValid: boolean): Promise<void> => {
-    if (!isValid) setHasApiKey(false);
-    else {
+    setHasApiKey(isValid);
+
+    if (isValid) {
       try {
         const activeChatId = await invoke('get_active_chat')
         if (activeChatId) router.push(`/${activeChatId}`);
-        else setHasApiKey(true);
       } catch { }
     }
   };

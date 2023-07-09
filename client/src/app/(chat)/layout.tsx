@@ -38,18 +38,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           if (!isValid) {
             await invoke('clear_api_key');
             setHasApiKey(false);
-            //          else if (params.get('skipActiveChatCheck') !== 'true') {
-            //            const activeChatId = await invoke<string>('get_active_chat');
-            //            if (activeChatId) {
-            //              router.push(`/${activeChatId}`);
-            //              setHasApiKey(true);
-            //              return;
-            //            }
-            //
-            //            setHasApiKey(true);
-            //          } else {
-            //            setHasApiKey(true);
-            //          }
           } else {
             setHasApiKey(true);
           }
@@ -58,7 +46,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }
 
         setIsInit(true);
-      } catch { }
+      } catch (error) {
+        console.log(error);
+        setIsInit(true);
+      }
     };
 
     initialSetup();
@@ -75,6 +66,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const handleSelect = (selectedId: string): void => {
     router.push(`/${selectedId}`);
   };
+  console.log(isInit);
 
   if (!isInit) return null;
 
