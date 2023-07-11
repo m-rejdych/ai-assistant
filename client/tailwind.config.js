@@ -20,4 +20,4 @@ module.exports = {
   daisyui: {
     themes: ['coffee', 'night'],
   },
-}
+};

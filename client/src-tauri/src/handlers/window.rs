@@ -1,4 +1,4 @@
-use tauri::{command, Error, LogicalPosition, LogicalSize, Window};
+use tauri::{command, Error, LogicalPosition, LogicalSize, Window, AppHandle};
 
 #[command]
 pub fn resize_window(window: Window) -> Result<(), Error> {
@@ -39,4 +39,14 @@ pub fn toggle_window(window: Window) -> Result<(), Error> {
     }
 
     Ok(())
+}
+
+#[command]
+pub fn exit(app: AppHandle) {
+    app.exit(0);
+}
+
+#[command]
+pub fn restart(app: AppHandle) {
+     app.restart();
 }

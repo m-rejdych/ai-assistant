@@ -54,7 +54,7 @@ export const Chat: FC<Props> = ({ messages, pendingPrompt, ...rest }) => {
           </div>
           <div className={`chat-bubble${isUser(type) ? ' chat-bubble-primary' : ''}`}>
             {content.split('\n').map((chunk, index) => (
-              <p className="min-h-6" key={`${id}-${index}`}>
+              <p className="min-h-6 break-words" key={`${id}-${index}`}>
                 {chunk}
               </p>
             ))}

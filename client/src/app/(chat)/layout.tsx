@@ -1,32 +1,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { invoke } from '@tauri-apps/api/tauri';
 import { isRegistered, register } from '@tauri-apps/api/globalShortcut';
 import { useAtom } from 'jotai';
-import { MdHistory, MdAdd } from 'react-icons/md';
 
+import { MenuButtons } from './menuButtons';
+import { ChatList } from './chatList';
+import { Settings } from './settings';
 import { hasApiKeyAtom } from '../../atoms/apiKey';
+import { Theme } from '../../types/style';
 import type { Chat } from '../../types/chat';
 
 const HOTKEY = 'Alt+Shift+Ctrl+A' as const;
 const HOTKEY_RESIZE = 'Alt+Shift+Ctrl+S' as const;
-const DEFAULT_THEME = 'Coffee';
+const DEFAULT_THEME = Theme.Coffee as const;
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [hasApiKey, setHasApiKey] = useAtom(hasApiKeyAtom);
   const [isInit, setIsInit] = useState(false);
-  const router = useRouter();
+  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
   const { chatId } = useParams();
 
   useEffect(() => {
-    const initialSetup = async (): Promise<void> => {
+    (async () => {
       try {
-        const theme = await invoke<string | null>('get_theme');
-        if (theme) {
-          document.querySelector('html')?.setAttribute('data-theme', theme.toLowerCase());
+        const currentTheme = await invoke<Theme | null>('get_theme');
+        if (currentTheme) {
+          document.querySelector('html')?.setAttribute('data-theme', currentTheme.toLowerCase());
+          setTheme(currentTheme);
         } else {
           await invoke('change_theme', { theme: DEFAULT_THEME });
         }
@@ -58,9 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         console.log(error);
         setIsInit(true);
       }
-    };
-
-    initialSetup();
+    })()
   }, []);
 
   useEffect(() => {
@@ -71,9 +73,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     })();
   }, [chatId]);
 
-  const handleSelect = (selectedId: string): void => {
-    router.push(`/${selectedId}`);
-  };
 
   if (!isInit) return null;
 
@@ -84,33 +83,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="drawer h-full">
-      <input id="chats" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content overflow-hidden h-full px-4 py-8">
-        {children}
-        <div className="fixed top-3 left-3 flex flex-col items-center">
-          <div className="tooltip tooltip-right" data-tip="Chat history">
-            <label htmlFor="chats" className="btn btn-sm btn-square drawer-button">
-              <MdHistory className="text-xl" />
-            </label>
-          </div>
-          <div className="tooltip tooltip-right" data-tip="New chat">
-            <button className="btn btn-sm btn-square mt-2" onClick={() => router.push('/?skipActiveChatCheck=true')}>
-              <MdAdd className="text-xl" />
-            </button>
-          </div>
+    <div className="px-4 py-8 h-full">
+      {children}
+      <div className="drawer fixed">
+        <input id="chats" type="checkbox" className="drawer-toggle" />
+        <div className="drawer-content">
+          <MenuButtons />
+        </div>
+        <div className="drawer-side">
+          <label htmlFor="chats" className="drawer-overlay" />
+          <ChatList chats={chats} />
         </div>
       </div>
-      <div className="drawer-side">
-        <label htmlFor="chats" className="drawer-overlay" />
-        <ul className="menu p-4 w-80 h-full bg-base-200 text-base-content">
-          <li className="menu-title text-lg text-center">Chat history</li>
-          {chats.map(({ id, name }) => (
-            <li key={id} className="w-full overflow-x-hidden" onClick={() => handleSelect(id)}>
-              <a className={id === chatId ? 'active' : undefined}>{name}</a>
-            </li>
-          ))}
-        </ul>
+      <div className="drawer fixed">
+        <input id="settings" type="checkbox" className="drawer-toggle" />
+        <div className="drawer-side">
+          <label htmlFor="settings" className="drawer-overlay" />
+          <Settings theme={theme} onChangeTheme={setTheme} />
+        </div>
       </div>
     </div>
   );

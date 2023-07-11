@@ -50,7 +50,12 @@ pub fn create_data_dir(app: &AppHandle) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn insert_config(filename: &str, config_name: &str, config_content: String, app: &AppHandle) -> Result<(), Error> {
+pub fn insert_config(
+    filename: &str,
+    config_name: &str,
+    config_content: String,
+    app: &AppHandle,
+) -> Result<(), Error> {
     let config_file_content = read_config_file(filename, app);
 
     let new_config = format!("{}={}", config_name, config_content);
@@ -119,19 +124,22 @@ pub fn update_config(
     let content = read_config_file(filename, app).ok_or(Error::FailedToSendMessage)?;
 
     let mut lines = Vec::from_iter(content.lines());
+    let new_config = format!("{}={}", config_name, config_content);
 
     if let Some(pos) = lines
         .iter()
         .position(|line| line.starts_with(format!("{}=", config_name).as_str()))
     {
         if let Some(config) = lines.get_mut(pos) {
-            *config = format!("{}={}", config_name, config_content).as_str();
+            *config = new_config.as_str();
         } else {
             return Err(Error::FailedToSendMessage);
         }
     } else {
         return Err(Error::FailedToSendMessage);
     }
+
+    write_config_file(".airc", lines.join("\n"), app)?;
 
     Ok(())
 }

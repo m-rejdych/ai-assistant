@@ -7,6 +7,7 @@ use super::super::util::data_dir::{get_config, insert_config, update_config};
 #[derive(Debug, Deserialize)]
 pub enum Theme {
     Coffee,
+    Night,
 }
 
 impl fmt::Display for Theme {
