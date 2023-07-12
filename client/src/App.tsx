@@ -6,6 +6,7 @@ import { useAtom } from 'jotai';
 import { ChatHistoryDrawer } from './layout/ChatHistoryDrawer';
 import { SettingsDrawer } from './layout//SettingsDrawer';
 import { Chat } from './layout/Chat';
+import { Notifications } from './layout/Notifications';
 import { hasApiKeyAtom } from './atoms/apiKey';
 import { Theme } from './types/style';
 
@@ -79,6 +80,7 @@ export const App: FC = () => {
         <>
           <ChatHistoryDrawer chatId={chatId} onNewChat={setChatId} />
           <SettingsDrawer theme={theme} onChangeTheme={setTheme} />
+          <Notifications />
         </>
       )}
     </div>

@@ -1,6 +1,9 @@
 import { type HTMLProps, useState, forwardRef } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { useAddNotification } from '../../hooks/useAddNotification';
+import { NotificationType } from '../../types/notifications';
+
 interface Props extends HTMLProps<HTMLInputElement> {
   onSave: (isValid: boolean) => void | Promise<void>;
   onLoading: (isLoading: boolean) => void;
@@ -10,6 +13,7 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
   ({ onSave, onLoading, className, ...rest }, ref) => {
     const [value, setValue] = useState('');
     const [error, setError] = useState(false);
+    const addNotification = useAddNotification();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       if (error) setError(false);
@@ -24,6 +28,7 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
         onLoading(true);
         await invoke('save_api_key', { key: value });
         await onSave(await invoke<boolean>('has_api_key'));
+        addNotification({ text: 'API key successfully saved', type: NotificationType.Success });
         if (error) setError(false);
       } catch (error) {
         console.log(error);

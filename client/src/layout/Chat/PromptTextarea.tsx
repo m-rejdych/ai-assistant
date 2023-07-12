@@ -1,6 +1,8 @@
 import { forwardRef, useState, type HTMLProps } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { useAddNotification } from '../../hooks/useAddNotification';
+import { NotificationType } from '../../types/notifications';
 import type { SendMessageData } from '../../types/chat';
 
 interface Props extends HTMLProps<HTMLTextAreaElement> {
@@ -13,6 +15,7 @@ interface Props extends HTMLProps<HTMLTextAreaElement> {
 export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
   ({ chatId, pendingPrompt, onSend, onPendingPrompt, className, ...rest }, ref) => {
     const [value, setValue] = useState('');
+    const addNotification = useAddNotification();
 
     const handleKeyDownPrompt = async (
       e: React.KeyboardEvent<HTMLTextAreaElement>,
@@ -37,9 +40,11 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
               onPendingPrompt(contentStr);
 
               await invoke('add_context_message', { content: contentStr });
+              addNotification({ text: 'Context expanded', type: NotificationType.Success });
               break;
             }
             default:
+              addNotification({ text: 'Invalid command', type: NotificationType.Error });
               break;
           }
         } else {
