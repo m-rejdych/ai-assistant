@@ -16,29 +16,49 @@ export const MenuButtons: FC<Props> = ({ onNewChat }) => {
   };
 
   return (
-    <ul className="menu menu-xs fixed top-2 left-2 bg-base-200 rounded-box">
+    <ul className="menu menu-xs fixed top-2 -left-2 bg-base-200 rounded-box opacity-50 hover:opacity-100">
       <li>
-        <label className="cursor-pointer tooltip tooltip-right" onClick={onNewChat} data-tip="New chat">
+        <label
+          className="cursor-pointer tooltip tooltip-right"
+          onClick={onNewChat}
+          data-tip="New chat"
+        >
           <MdAdd className="text-xl" />
         </label>
       </li>
       <li>
-        <label htmlFor="chats" className="cursor-pointer tooltip tooltip-right" data-tip="Chat history">
+        <label
+          htmlFor="chats"
+          className="cursor-pointer tooltip tooltip-right"
+          data-tip="Chat history"
+        >
           <MdHistory className="text-xl" />
         </label>
       </li>
       <li>
-        <label className="cursor-pointer tooltip tooltip-right" htmlFor="settings" data-tip="Settings">
+        <label
+          className="cursor-pointer tooltip tooltip-right"
+          htmlFor="settings"
+          data-tip="Settings"
+        >
           <MdSettings className="text-xl" />
         </label>
       </li>
       <li>
-        <label className="cursor-pointer tooltip tooltip-right" data-tip="Restart" onClick={handleRestart}>
+        <label
+          className="cursor-pointer tooltip tooltip-right"
+          data-tip="Restart"
+          onClick={handleRestart}
+        >
           <MdRestartAlt className="text-xl" />
         </label>
       </li>
       <li>
-        <label className="cursor-pointer tooltip tooltip-right" data-tip="Exit" onClick={handleExit}>
+        <label
+          className="cursor-pointer tooltip tooltip-right"
+          data-tip="Exit"
+          onClick={handleExit}
+        >
           <MdExitToApp className="text-xl" />
         </label>
       </li>
