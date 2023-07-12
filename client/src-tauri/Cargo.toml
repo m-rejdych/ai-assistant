@@ -18,6 +18,7 @@ tauri-build = { version = "1.4.0", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.4.0", features = [ "window-set-min-size", "http-all", "fs-all", "macos-private-api", "global-shortcut-all", "window-set-focus", "window-set-size", "window-set-position", "window-set-always-on-top", "window-close", "window-show", "window-hide", "http-api"] }
+dotenv_codegen = "0.15.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

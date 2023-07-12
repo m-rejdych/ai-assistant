@@ -1,13 +1,10 @@
 use serde_json::Value;
-use std::env;
 use tauri::{api::http, AppHandle, Error};
 
 use super::auth::get_api_key;
 
-pub fn get_api_url() -> String {
-    let url = env::var("API_URL").unwrap_or("http://localhost:8080".to_string());
-
-    url
+pub fn get_api_url() -> &'static str {
+    dotenv!("API_URL")
 }
 
 pub fn create_authorized_req(
