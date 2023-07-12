@@ -18,4 +18,6 @@ app.use('/chat', chatRouter);
 app.use('/context', contextRouter);
 app.use(errorMiddleware);
 
-app.listen(8080, () => console.log(`Server is running.`));
+app.listen(parseInt(process.env.PORT as string), process.env.HOST as string, () =>
+  console.log(`Server is running.`),
+);
