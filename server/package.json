@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/build.*.js",
     "dev": "nodemon --ext ts --files src/index.ts",
-    "build": "webpack && rm -rf node_modules && npm ci --omit=dev"
+    "build": "webpack"
   },
   "keywords": [],
   "author": "",
