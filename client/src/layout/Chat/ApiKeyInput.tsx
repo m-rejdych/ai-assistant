@@ -2,7 +2,7 @@ import { type HTMLProps, useState, forwardRef } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
 interface Props extends HTMLProps<HTMLInputElement> {
-  onSave: (isValid: boolean) => void;
+  onSave: (isValid: boolean) => void | Promise<void>;
 }
 
 export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
@@ -21,7 +21,7 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
 
       try {
         await invoke('save_api_key', { key: value });
-        onSave(await invoke<boolean>('has_api_key'));
+        await onSave(await invoke<boolean>('has_api_key'));
         if (error) setError(false);
       } catch {
         setError(true);

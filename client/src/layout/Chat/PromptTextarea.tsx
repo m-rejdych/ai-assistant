@@ -1,19 +1,18 @@
 import { forwardRef, useState, type HTMLProps } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
-import { useParams } from 'next/navigation';
 
 import type { SendMessageData } from '../../types/chat';
 
 interface Props extends HTMLProps<HTMLTextAreaElement> {
+  chatId: string;
   pendingPrompt: string;
   onSend: (data: SendMessageData) => void;
   onPendingPrompt: (prompt: string) => void;
 }
 
 export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
-  ({ pendingPrompt, onSend, onPendingPrompt, className, ...rest }, ref) => {
+  ({ chatId, pendingPrompt, onSend, onPendingPrompt, className, ...rest }, ref) => {
     const [value, setValue] = useState('');
-    const { chatId } = useParams();
 
     const handleKeyDownPrompt = async (
       e: React.KeyboardEvent<HTMLTextAreaElement>,
@@ -55,8 +54,7 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
         }
       } catch (error) {
         console.log(error);
-      }
-      finally {
+      } finally {
         onPendingPrompt('');
       }
     };
@@ -71,8 +69,9 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDownPrompt}
           {...rest}
-          className={`textarea textarea-primary resize-none w-full${className ? ` ${className}` : ''
-            }`}
+          className={`textarea textarea-primary resize-none w-full${
+            className ? ` ${className}` : ''
+          }`}
         />
       </div>
     );

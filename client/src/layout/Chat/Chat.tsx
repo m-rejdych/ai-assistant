@@ -1,19 +1,22 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState, type FC } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { useAtom } from 'jotai';
 
-import { Chat, ApiKeyInput, PromptTextarea } from '../../components/chat';
+import { ApiKeyInput } from './ApiKeyInput';
+import { PromptTextarea } from './PromptTextarea';
+import { Messages } from './Messages';
 import { hasApiKeyAtom } from '../../atoms/apiKey';
-import type { SendMessageData } from '../../types/chat';
+import type { SendMessageData, Message } from '../../types/chat';
 
-export default function Home() {
+interface Props {
+  chatId: string;
+  onNewChat: (id: string) => void;
+}
+
+export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
   const [hasApiKey, setHasApiKey] = useAtom(hasApiKeyAtom);
   const [pendingPrompt, setPendingPrompt] = useState('');
-  const router = useRouter();
-  const params = useSearchParams();
+  const [messages, setMessages] = useState<Message[]>([]);
   const promptRef = useRef<HTMLTextAreaElement>(null);
   const apiKeyRef = useRef<HTMLInputElement>(null);
 
@@ -28,25 +31,28 @@ export default function Home() {
     return () => {
       window.removeEventListener('focus', focusInput);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!hasApiKey) return;
-
-    const findActiveChat = async (): Promise<void> => {
-      if (params.get('skipActiveChatCheck') === 'true') return;
-
-      const activeChatId = await invoke<string>('get_active_chat');
-      if (activeChatId) {
-        router.push(`/${activeChatId}`);
-      }
-    };
-
-    findActiveChat();
   }, [hasApiKey]);
 
-  const addNewMessages = async ({ chat: { id } }: SendMessageData): Promise<void> => {
-    router.push(`/${id}`);
+  useEffect(() => {
+    if (chatId) {
+      (async () => {
+        setMessages(await invoke<Message[]>('get_messages_by_chat_id', { chatId }));
+      })();
+    } else {
+      setMessages([]);
+    }
+  }, [chatId]);
+
+  const addNewMessages = ({
+    chat: { id },
+    userMessage,
+    assistantMessage,
+  }: SendMessageData): void => {
+    if (chatId) {
+      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+    } else {
+      onNewChat(id);
+    }
   };
 
   const handleSaveApiKey = async (isValid: boolean): Promise<void> => {
@@ -54,9 +60,9 @@ export default function Home() {
 
     if (isValid) {
       try {
-        const activeChatId = await invoke('get_active_chat')
-        if (activeChatId) router.push(`/${activeChatId}`);
-      } catch { }
+        const activeChatId = await invoke<string>('get_active_chat');
+        if (activeChatId) onNewChat(activeChatId);
+      } catch {}
     }
   };
 
@@ -64,8 +70,13 @@ export default function Home() {
     <main className="h-full flex flex-col overflow-hidden">
       {hasApiKey ? (
         <>
-          <Chat pendingPrompt={pendingPrompt} messages={[]} className="flex-1 overflow-auto" />
+          <Messages
+            pendingPrompt={pendingPrompt}
+            messages={messages}
+            className="flex-1 overflow-auto"
+          />
           <PromptTextarea
+            chatId={chatId}
             ref={promptRef}
             pendingPrompt={pendingPrompt}
             onPendingPrompt={setPendingPrompt}
@@ -80,4 +91,4 @@ export default function Home() {
       )}
     </main>
   );
-}
+};

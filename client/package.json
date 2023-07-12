@@ -2,15 +2,15 @@
   "name": "ai-assistant",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.29.15",
     "@tauri-apps/api": "^1.4.0",
     "@types/node": "20.3.1",
     "@types/react": "18.2.12",
@@ -19,7 +19,6 @@
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.6",
     "jotai": "^2.2.2",
-    "next": "13.4.6",
     "postcss": "8.4.24",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -30,6 +29,17 @@
   "devDependencies": {
     "@tauri-apps/cli": "^1.4.0",
     "@types/react-icons": "^3.0.0",
-    "daisyui": "^3.1.5"
+    "@types/node": "^20.4.1",
+    "daisyui": "^3.1.5",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
+    "@vitejs/plugin-react": "^4.0.1",
+    "eslint": "^8.44.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.0"
   }
 }

@@ -7,7 +7,7 @@ interface Props extends HTMLProps<HTMLDivElement> {
   pendingPrompt: string;
 }
 
-export const Chat: FC<Props> = ({ messages, pendingPrompt, ...rest }) => {
+export const Messages: FC<Props> = ({ messages, pendingPrompt, ...rest }) => {
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
