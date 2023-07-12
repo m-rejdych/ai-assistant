@@ -45,7 +45,9 @@ export const sendMessage = async (
     select: { content: true },
   });
 
-  const systemMessage = userContext
+  const todayMessage = `Today is ${new Date().toDateString()}.`;
+
+  const userContextMessage = userContext
     ? `Information about user:
 ${userContext.content}`
     : null;
@@ -63,22 +65,27 @@ ${userContext.content}`
 
   const contextMessages = chat
     ? (
-      await prisma.message.findMany({
-        where: { chatId: chat.id },
-        orderBy: { createdAt: 'asc' },
-        select: { content: true, role: { select: { type: true } } },
-      })
-    ).map(({ content, role: { type } }) => ({
-      content,
-      role: type.toLowerCase(),
-    }))
+        await prisma.message.findMany({
+          where: { chatId: chat.id },
+          orderBy: { createdAt: 'asc' },
+          select: { content: true, role: { select: { type: true } } },
+        })
+      ).map(({ content, role: { type } }) => ({
+        content,
+        role: type.toLowerCase(),
+      }))
     : [];
 
   const newUserMessage = { role: 'user', content };
 
-  const messages = systemMessage
-    ? [{ role: 'system', content: systemMessage }, ...contextMessages, newUserMessage]
-    : [...contextMessages, newUserMessage];
+  const messages = [
+    {
+      role: 'system',
+      content: `${todayMessage}${userContextMessage ? ` ${userContextMessage}` : ''}`,
+    },
+    ...contextMessages,
+    newUserMessage,
+  ];
 
   const completionResponse = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',
