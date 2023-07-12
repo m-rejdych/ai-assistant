@@ -11,6 +11,9 @@ module.exports = {
   node: false,
   mode: 'production',
   externals: [nodeExternals()],
+  resolve: {
+    extensions: ['.js', '.ts'],
+  },
   module: {
     rules: [
       {
