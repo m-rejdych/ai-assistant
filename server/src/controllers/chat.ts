@@ -45,7 +45,9 @@ export const sendMessage = async (
     select: { content: true },
   });
 
-  const todayMessage = `Today is ${new Date().toDateString()}.`;
+  const todayMessage = `Today is ${new Date().toLocaleString('pl-PL', {
+    timeZone: 'Europe/Warsaw',
+  })}.`;
 
   const userContextMessage = userContext
     ? `Information about user:
