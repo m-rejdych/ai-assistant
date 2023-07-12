@@ -1,6 +1,6 @@
 import { prisma } from '../util/prisma';
 
-import { fetch } from '../util/fetch';
+import fetch from 'node-fetch';
 import { OPEN_AI_COMPLETIONS } from '../constants/openai';
 import type { CompletionResult } from '../types/openai';
 
