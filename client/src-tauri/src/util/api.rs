@@ -5,7 +5,7 @@ use tauri::{api::http, AppHandle, Error};
 use super::auth::get_api_key;
 
 pub fn get_api_url() -> String {
-    let url = env::var("API_KEY").unwrap_or("http://localhost:8080".to_string());
+    let url = env::var("API_URL").unwrap_or("http://localhost:8080".to_string());
 
     url
 }
