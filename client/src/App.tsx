@@ -51,7 +51,6 @@ export const App: FC = () => {
         } else {
           setHasApiKey(false);
         }
-
       } catch (error) {
         console.log(error);
       } finally {
@@ -63,14 +62,12 @@ export const App: FC = () => {
   useEffect(() => {
     if (!hasApiKey) return;
 
-    const findActiveChat = async (): Promise<void> => {
+    (async () => {
       const activeChatId = await invoke<string>('get_active_chat');
       if (activeChatId) {
         setChatId(activeChatId);
       }
-    };
-
-    findActiveChat();
+    })();
   }, [hasApiKey]);
 
   if (!isInit) return null;
@@ -78,8 +75,12 @@ export const App: FC = () => {
   return (
     <div className="px-4 py-8 h-screen">
       <Chat chatId={chatId} onNewChat={setChatId} />
-      <ChatHistoryDrawer chatId={chatId} onNewChat={setChatId} />
-      <SettingsDrawer theme={theme} onChangeTheme={setTheme} />
+      {hasApiKey && (
+        <>
+          <ChatHistoryDrawer chatId={chatId} onNewChat={setChatId} />
+          <SettingsDrawer theme={theme} onChangeTheme={setTheme} />
+        </>
+      )}
     </div>
   );
 };

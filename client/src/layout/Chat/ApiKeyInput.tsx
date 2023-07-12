@@ -3,10 +3,11 @@ import { invoke } from '@tauri-apps/api/tauri';
 
 interface Props extends HTMLProps<HTMLInputElement> {
   onSave: (isValid: boolean) => void | Promise<void>;
+  onLoading: (isLoading: boolean) => void;
 }
 
 export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
-  ({ onSave, className, ...rest }, ref) => {
+  ({ onSave, onLoading, className, ...rest }, ref) => {
     const [value, setValue] = useState('');
     const [error, setError] = useState(false);
 
@@ -20,11 +21,15 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
       e.preventDefault();
 
       try {
+        onLoading(true);
         await invoke('save_api_key', { key: value });
         await onSave(await invoke<boolean>('has_api_key'));
         if (error) setError(false);
-      } catch {
+      } catch (error) {
+        console.log(error);
         setError(true);
+      } finally {
+        onLoading(false);
       }
     };
 
@@ -44,8 +49,9 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           {...rest}
-          className={`input input-bordered ${error ? 'input-error' : 'input-primary'} w-full${className ? ` ${className}` : ''
-            }`}
+          className={`input input-bordered ${error ? 'input-error' : 'input-primary'} w-full${
+            className ? ` ${className}` : ''
+          }`}
         />
       </div>
     );

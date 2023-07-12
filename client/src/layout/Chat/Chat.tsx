@@ -17,6 +17,7 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
   const [hasApiKey, setHasApiKey] = useAtom(hasApiKeyAtom);
   const [pendingPrompt, setPendingPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
   const promptRef = useRef<HTMLTextAreaElement>(null);
   const apiKeyRef = useRef<HTMLInputElement>(null);
 
@@ -36,7 +37,14 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
   useEffect(() => {
     if (chatId) {
       (async () => {
-        setMessages(await invoke<Message[]>('get_messages_by_chat_id', { chatId }));
+        try {
+          setLoading(true);
+          setMessages(await invoke<Message[]>('get_messages_by_chat_id', { chatId }));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
       })();
     } else {
       setMessages([]);
@@ -55,26 +63,25 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
     }
   };
 
-  const handleSaveApiKey = async (isValid: boolean): Promise<void> => {
+  const handleSaveApiKey = (isValid: boolean): void => {
     setHasApiKey(isValid);
-
-    if (isValid) {
-      try {
-        const activeChatId = await invoke<string>('get_active_chat');
-        if (activeChatId) onNewChat(activeChatId);
-      } catch {}
-    }
   };
 
   return (
     <main className="h-full flex flex-col overflow-hidden">
       {hasApiKey ? (
         <>
-          <Messages
-            pendingPrompt={pendingPrompt}
-            messages={messages}
-            className="flex-1 overflow-auto"
-          />
+          {loading ? (
+            <div className="flex-1 self-center">
+              <progress className="progress progress-primary w-56" />
+            </div>
+          ) : (
+            <Messages
+              pendingPrompt={pendingPrompt}
+              messages={messages}
+              className="flex-1 overflow-auto"
+            />
+          )}
           <PromptTextarea
             chatId={chatId}
             ref={promptRef}
@@ -85,8 +92,10 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
         </>
       ) : (
         <>
-          <div className="flex-1 overflow-auto" />
-          <ApiKeyInput ref={apiKeyRef} onSave={handleSaveApiKey} />
+          <div className="flex-1 self-center">
+            {loading && <progress className="progress progress-primary w-56" />}
+          </div>
+          <ApiKeyInput ref={apiKeyRef} onSave={handleSaveApiKey} onLoading={setLoading} />
         </>
       )}
     </main>
