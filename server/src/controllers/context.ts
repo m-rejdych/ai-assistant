@@ -1,11 +1,10 @@
 import { prisma } from '../util/prisma';
+import fetch from 'node-fetch';
 
 import { OPEN_AI_COMPLETIONS } from '../constants/openai';
+import type { CompletionResult } from '../types/openai';
 
-export const addContextMessage = async (
-  content: string,
-  apiKey: string,
-): Promise<void> => {
+export const addContextMessage = async (content: string, apiKey: string): Promise<void> => {
   const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
   if (!key) {
     throw new Error('API key type not found.');
@@ -47,7 +46,7 @@ ${trimmedContent}`;
     }),
   });
 
-  const completionResult = await response.json();
+  const completionResult = (await response.json()) as CompletionResult;
   const newContext = completionResult.choices[0].message.content;
 
   if (userContext) {

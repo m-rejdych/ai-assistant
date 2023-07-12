@@ -1,7 +1,9 @@
 import { prisma } from '../util/prisma';
 import { RoleType, type Prisma } from '@prisma/client';
+import fetch from 'node-fetch';
 
 import { OPEN_AI_COMPLETIONS } from '../constants/openai';
+import type { CompletionResult } from '../types/openai';
 
 type Message = Prisma.MessageGetPayload<{
   select: {
@@ -61,15 +63,15 @@ ${userContext.content}`
 
   const contextMessages = chat
     ? (
-        await prisma.message.findMany({
-          where: { chatId: chat.id },
-          orderBy: { createdAt: 'asc' },
-          select: { content: true, role: { select: { type: true } } },
-        })
-      ).map(({ content, role: { type } }) => ({
-        content,
-        role: type.toLowerCase(),
-      }))
+      await prisma.message.findMany({
+        where: { chatId: chat.id },
+        orderBy: { createdAt: 'asc' },
+        select: { content: true, role: { select: { type: true } } },
+      })
+    ).map(({ content, role: { type } }) => ({
+      content,
+      role: type.toLowerCase(),
+    }))
     : [];
 
   const newUserMessage = { role: 'user', content };
@@ -91,7 +93,7 @@ ${userContext.content}`
     }),
   });
 
-  const completionResult = await completionResponse.json();
+  const completionResult = (await completionResponse.json()) as CompletionResult;
   const newAssistantMessage = {
     role: 'assistant',
     content: completionResult.choices[0].message.content,
@@ -117,7 +119,7 @@ ${userContext.content}`
       }),
     });
 
-    const chatNameCompletionResult = await chatNameCompletionResponse.json();
+    const chatNameCompletionResult = (await chatNameCompletionResponse.json()) as CompletionResult;
     const chatName = chatNameCompletionResult.choices[0].message.content;
 
     chat = await prisma.chat.create({
