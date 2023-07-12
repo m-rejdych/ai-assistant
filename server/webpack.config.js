@@ -6,6 +6,7 @@ module.exports = {
   output: {
     filename: 'build.[contenthash:8].js',
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '/',
   },
   target: 'node',
   node: false,
