@@ -23,6 +23,7 @@ pub async fn validate_api_key(api_key: &str) -> Result<bool, Error> {
     let req = http::HttpRequestBuilder::new("GET", url)?
         .header("Authorization", format!("Bearer {}", api_key))?;
     let http::ResponseData { data, status, .. } = client.send(req).await?.read().await?;
+    println!("{}", api_key);
 
     if status >= 400 {
         eprintln!("{}", data);
