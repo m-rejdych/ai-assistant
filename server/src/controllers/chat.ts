@@ -40,19 +40,37 @@ export const sendMessage = async (
   });
   if (!assistantRole) throw new Error('Assistant role not found.');
 
-  const userContext = await prisma.context.findUnique({
+  const userContext = await prisma.userContext.findUnique({
+    where: { apiKeyId: key.id },
+    select: { content: true },
+  });
+  const assistantContext = await prisma.assistantContext.findUnique({
     where: { apiKeyId: key.id },
     select: { content: true },
   });
 
-  const todayMessage = `Today is ${new Date().toLocaleString('pl-PL', {
+  const todayMessage = `{{GENERAL INFORMATION}}
+- Today is ${new Date().toLocaleString('pl-PL', {
     timeZone: 'Europe/Warsaw',
-  })}.`;
+  })}`;
 
   const userContextMessage = userContext
-    ? `Information about user:
+    ? `
+
+###
+
+{{INFORMATION ABOUT USER}}
 ${userContext.content}`
-    : null;
+    : '';
+  const assistantContextMessage = `
+
+###
+
+{{INFORMATION ABOUT YOU}}
+- You are user's personal assistant
+- You are not allowed to mention that it is an AI model in his messages${
+    assistantContext?.content ? `\n${assistantContext.content}` : ''
+  }`;
 
   let chat =
     chatId &&
@@ -78,16 +96,16 @@ ${userContext.content}`
       }))
     : [];
 
-  const newUserMessage = { role: 'user', content };
+  const trimmedContent = content.trim();
+  const newUserMessage = { role: 'user', content: trimmedContent };
 
-  const messages = [
-    {
-      role: 'system',
-      content: `${todayMessage}${userContextMessage ? ` ${userContextMessage}` : ''}`,
-    },
-    ...contextMessages,
-    newUserMessage,
-  ];
+  const systemMessage = {
+    role: 'system',
+    content: `${todayMessage}${assistantContextMessage}${userContextMessage}`,
+  };
+  console.log(systemMessage.content);
+
+  const messages = [systemMessage, ...contextMessages, newUserMessage];
 
   const completionResponse = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',
@@ -228,7 +246,6 @@ export const getChats = async (apiKey: string): Promise<Chat[]> => {
 };
 
 export const deleteChatById = async (chatId: string, apiKey: string): Promise<void> => {
-  console.log();
   const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
   if (!key) throw new Error('API key not found.');
 

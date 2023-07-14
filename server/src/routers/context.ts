@@ -1,8 +1,21 @@
 import { Router } from 'express';
 
 import { validateApiKeyFromAuthHeader } from '../middleware/auth';
-import { addContextMessageHandler } from '../handlers/context';
+import {
+  addUserContextMessageHandler,
+  addAssistantContextMessageHandler,
+} from '../handlers/context';
 
 export const router = Router();
 
-router.post('/add-context-message', validateApiKeyFromAuthHeader, addContextMessageHandler);
+router.post(
+  '/add-user-context-message',
+  validateApiKeyFromAuthHeader,
+  addUserContextMessageHandler,
+);
+
+router.post(
+  '/add-assistant-context-message',
+  validateApiKeyFromAuthHeader,
+  addAssistantContextMessageHandler,
+);

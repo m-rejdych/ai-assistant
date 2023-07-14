@@ -11,11 +11,12 @@ datasource db {
 }
 
 model ApiKey {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  createdAt DateTime @default(now())
-  context   Context?
-  chats     Chat[]
+  id               String            @id @default(uuid())
+  key              String            @unique
+  createdAt        DateTime          @default(now())
+  userContext      UserContext?
+  assistantContext AssistantContext?
+  chats            Chat[]
 }
 
 model Message {
@@ -44,7 +45,16 @@ model Chat {
   messages  Message[]
 }
 
-model Context {
+model UserContext {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+  apiKeyId  String   @unique
+  apiKey    ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+}
+
+model AssistantContext {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -33,13 +33,23 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
           const [cmd, ...content] = currentPrompt.split(' ');
 
           switch (cmd) {
-            case '/ctx': {
+            case '/ctx_u': {
               if (!content.length) break;
 
-              const contentStr = content.join(' ');
+              const contentStr = content.join(' ').trim();
               onPendingPrompt(contentStr);
 
-              await invoke('add_context_message', { content: contentStr });
+              await invoke('add_user_context_message', { content: contentStr });
+              addNotification({ text: 'Context expanded', type: NotificationType.Success });
+              break;
+            }
+            case '/ctx_a': {
+              if (!content.length) break;
+
+              const contentStr = content.join(' ').trim();
+              onPendingPrompt(contentStr);
+
+              await invoke('add_assistant_context_message', { content: contentStr });
               addNotification({ text: 'Context expanded', type: NotificationType.Success });
               break;
             }
