@@ -54,9 +54,9 @@ export const App: FC = () => {
         }
       } catch (error) {
         console.log(error);
-      } finally {
-        setIsInit(true);
       }
+
+      setIsInit(true);
     })();
   }, []);
 

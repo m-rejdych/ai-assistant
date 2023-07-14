@@ -33,9 +33,9 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
       } catch (error) {
         console.log(error);
         setError(true);
-      } finally {
-        onLoading(false);
       }
+
+      onLoading(false);
     };
 
     return (

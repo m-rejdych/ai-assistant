@@ -42,9 +42,9 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
           setMessages(await invoke<Message[]>('get_messages_by_chat_id', { chatId }));
         } catch (error) {
           console.log(error);
-        } finally {
-          setLoading(false);
         }
+
+        setLoading(false);
       })();
     } else {
       setMessages([]);

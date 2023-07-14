@@ -59,9 +59,9 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
         }
       } catch (error) {
         console.log(error);
-      } finally {
-        onPendingPrompt('');
       }
+
+      onPendingPrompt('');
     };
 
     return (
