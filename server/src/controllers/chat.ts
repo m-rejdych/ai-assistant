@@ -226,3 +226,18 @@ export const getChats = async (apiKey: string): Promise<Chat[]> => {
 
   return chats;
 };
+
+export const deleteChatById = async (chatId: string, apiKey: string): Promise<void> => {
+  console.log();
+  const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
+  if (!key) throw new Error('API key not found.');
+
+  const chat = await prisma.chat.findUnique({
+    where: { id: chatId },
+    select: { id: true, apiKeyId: true },
+  });
+  if (!chat) throw new Error('Chat not found.');
+  if (chat.apiKeyId !== key.id) throw new Error('This chat is not connected to your API key.');
+
+  await prisma.chat.delete({ where: { id: chat.id } });
+};

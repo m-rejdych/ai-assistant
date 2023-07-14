@@ -68,3 +68,19 @@ pub async fn get_chats(app: AppHandle) -> Result<Value, Error> {
 
     Ok(data)
 }
+
+#[command]
+pub async fn delete_chat_by_id(app: AppHandle, chat_id: String) -> Result<(), Error> {
+    let url = format!("{}/chat/delete-chat-by-id", get_api_url());
+
+    let client = http::ClientBuilder::new().build()?;
+
+    let mut query = HashMap::new();
+    query.insert("id".to_string(), chat_id);
+
+    let req = create_authorized_req(&app, "DELETE", url)?.query(query);
+
+    client.send(req).await?;
+
+    Ok(())
+}

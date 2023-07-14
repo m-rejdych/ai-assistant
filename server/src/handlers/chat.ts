@@ -1,10 +1,20 @@
 import type { RequestHandler } from 'express';
 
-import { sendMessage, getMessagesByChatId, getActiveChatId, getChats } from '../controllers/chat';
+import {
+  sendMessage,
+  getMessagesByChatId,
+  getActiveChatId,
+  getChats,
+  deleteChatById,
+} from '../controllers/chat';
 
 interface SendMessageReqBody {
   content: string;
   chatId?: string;
+}
+
+interface DeleteChatByIdQuery {
+  id?: string;
 }
 
 export const sendMessageHandler: RequestHandler<
@@ -60,6 +70,23 @@ export const getChatsHandler: RequestHandler<{}, Awaited<ReturnType<typeof getCh
     const chats = await getChats(req.apiKey!);
 
     res.json(chats);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteChatByIdHandler: RequestHandler<{}, never, never, DeleteChatByIdQuery> = async (
+  req,
+  res,
+  next,
+) => {
+  try {
+    const { id } = req.query;
+    if (!id) throw new Error('"id" query is required.');
+
+    await deleteChatById(id, req.apiKey!);
+
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }
