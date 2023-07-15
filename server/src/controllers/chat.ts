@@ -59,14 +59,14 @@ export const sendMessage = async (
 
 ###
 
-{{INFORMATION ABOUT USER}}
+{{CONTEXT ABOUT USER}}
 ${userContext.content}`
     : '';
   const assistantContextMessage = `
 
 ###
 
-{{INFORMATION ABOUT YOU}}
+{{CONTEXT ABOUT YOU}}
 - You are user's personal assistant
 - You must not mention that you are an AI model in your messages${
     assistantContext?.content ? `\n${assistantContext.content}` : ''
