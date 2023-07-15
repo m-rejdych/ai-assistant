@@ -40,3 +40,29 @@ pub async fn add_assistant_context_message(app: AppHandle, content: String) -> R
         Ok(())
     }
 }
+
+#[command]
+pub async fn delete_user_context(app: AppHandle) -> Result<(), Error> {
+    let url = format!("{}/context/delete-user-context", get_api_url());
+
+    let client = http::ClientBuilder::new().build()?;
+
+    let req = create_authorized_req(&app, "DELETE", url)?;
+
+    client.send(req).await?;
+
+    Ok(())
+}
+
+#[command]
+pub async fn delete_assistant_context(app: AppHandle) -> Result<(), Error> {
+    let url = format!("{}/context/delete-assistant-context", get_api_url());
+
+    let client = http::ClientBuilder::new().build()?;
+
+    let req = create_authorized_req(&app, "DELETE", url)?;
+
+    client.send(req).await?;
+
+    Ok(())
+}

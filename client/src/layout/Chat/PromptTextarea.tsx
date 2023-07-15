@@ -53,6 +53,16 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
               addNotification({ text: 'Context expanded', type: NotificationType.Success });
               break;
             }
+            case '/ctx_u_clear': {
+              await invoke('delete_user_context');
+              addNotification({ text: 'Context removed', type: NotificationType.Warning });
+              break;
+            }
+            case '/ctx_a_clear': {
+              await invoke('delete_assistant_context');
+              addNotification({ text: 'Context removed', type: NotificationType.Warning });
+              break;
+            }
             default:
               addNotification({ text: 'Invalid command', type: NotificationType.Error });
               break;
@@ -69,6 +79,7 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
         }
       } catch (error) {
         console.log(error);
+        addNotification({ text: 'Something went wrong', type: NotificationType.Error });
       }
 
       onPendingPrompt('');

@@ -9,7 +9,10 @@ use handlers::auth::{clear_api_key, has_api_key, save_api_key, validate_stored_a
 use handlers::chat::{
     delete_chat_by_id, get_active_chat, get_chats, get_messages_by_chat_id, send_message,
 };
-use handlers::context::{add_user_context_message, add_assistant_context_message};
+use handlers::context::{
+    add_assistant_context_message, add_user_context_message, delete_assistant_context,
+    delete_user_context,
+};
 use handlers::style::{change_theme, get_theme};
 use handlers::window::{exit, resize_window, restart, toggle_window};
 
@@ -31,6 +34,8 @@ fn main() {
             delete_chat_by_id,
             add_user_context_message,
             add_assistant_context_message,
+            delete_user_context,
+            delete_assistant_context,
             change_theme,
             get_theme,
         ])

@@ -68,7 +68,7 @@ ${userContext.content}`
 
 {{INFORMATION ABOUT YOU}}
 - You are user's personal assistant
-- You are not allowed to mention that it is an AI model in his messages${
+- You must not mention that you are an AI model in your messages${
     assistantContext?.content ? `\n${assistantContext.content}` : ''
   }`;
 
@@ -103,7 +103,6 @@ ${userContext.content}`
     role: 'system',
     content: `${todayMessage}${assistantContextMessage}${userContextMessage}`,
   };
-  console.log(systemMessage.content);
 
   const messages = [systemMessage, ...contextMessages, newUserMessage];
 

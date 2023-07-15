@@ -121,3 +121,25 @@ ${trimmedContent}`;
     });
   }
 };
+
+export const deleteUserContext = async (apiKey: string): Promise<void> => {
+  const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
+  if (!key) throw new Error('API key not found.');
+
+  const userContext = await prisma.userContext.findUnique({ where: { apiKeyId: key.id } });
+  if (!userContext) return;
+
+  await prisma.userContext.delete({ where: { id: userContext.id } });
+};
+
+export const deleteAssistantContext = async (apiKey: string): Promise<void> => {
+  const key = await prisma.apiKey.findUnique({ where: { key: apiKey } });
+  if (!key) throw new Error('API key not found.');
+
+  const assistantContext = await prisma.assistantContext.findUnique({
+    where: { apiKeyId: key.id },
+  });
+  if (!assistantContext) return;
+
+  await prisma.assistantContext.delete({ where: { id: assistantContext.id } });
+};
