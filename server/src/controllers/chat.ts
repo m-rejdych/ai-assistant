@@ -49,6 +49,9 @@ export const sendMessage = async (
     select: { content: true },
   });
 
+  const baseAssistantContext = `- You are user's personal assistant.
+- You must not mention that you are an AI model in your messages.`;
+
   const todayMessage = `{{GENERAL INFORMATION}}
 - Today is ${new Date().toLocaleString('pl-PL', {
     timeZone: 'Europe/Warsaw',
@@ -67,10 +70,7 @@ ${userContext.content}`
 ###
 
 {{CONTEXT ABOUT YOU}}
-- You are user's personal assistant
-- You must not mention that you are an AI model in your messages${
-    assistantContext?.content ? `\n${assistantContext.content}` : ''
-  }`;
+${baseAssistantContext}${assistantContext?.content ? `\n${assistantContext.content}` : ''}`;
 
   let chat =
     chatId &&
@@ -105,7 +105,6 @@ ${userContext.content}`
   };
 
   const messages = [systemMessage, ...contextMessages, newUserMessage];
-  console.log(contextMessages);
 
   const completionResponse = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',

@@ -17,21 +17,16 @@ export const addUserContextMessage = async (content: string, apiKey: string): Pr
     where: { apiKeyId: key.id },
     select: { id: true, content: true },
   });
-
-  const prompt = userContext
-    ? `You will be given summary about some user labeled {{summary}}. Please create a similar summary - include all of the information from previous summary and extend it with information from user message labeled {{message}}. Always answer with sort bullet points about the user and nothing more. The points must start with "- User"
-
-{{summary}}
-${userContext.content}
+  const prompt = `You will be given a message labeled about someone labeled {{message}}. Convert this message to contain the same information, but it must be in third person named "User" and start as if it was a bullet point. If the message contains more than one information, split this into separate points.
+Here is an example:
+INPUT: "He is smart, funny and he likes dogs"
+OUTPUT: "- User is smart.\n- User is funny.\n- User likes dogs."
 
 ###
 
 {{message}}
-${trimmedContent}`
-    : `You will be given given a user message labeled {{message}}. Please create a summary about the user from the message you will be given. Always answer with short bullet about the user and nothing more. The points must start with "- User"
-
-{{message}}
-${trimmedContent}`;
+${trimmedContent}
+`;
 
   const response = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',
@@ -47,7 +42,8 @@ ${trimmedContent}`;
   });
 
   const completionResult = (await response.json()) as CompletionResult;
-  const newContext = completionResult.choices[0].message.content;
+  const newPoint = completionResult.choices[0].message.content;
+  const newContext = userContext ? `${userContext.content}\n${newPoint}` : newPoint;
 
   if (userContext) {
     await prisma.userContext.update({
@@ -78,21 +74,16 @@ export const addAssistantContextMessage = async (
     select: { id: true, content: true },
   });
 
-  const prompt = assistantContext
-    ? `You will be given summary about assistant labeled {{summary}}. Please create a similar summary - include all of the information from previous summary and extend it with definition about assistant labeled {{definition}}. Always answer with short bullet points about the assistant and nothing more. The points must be in second person and start with "- You"
-
-{{summary}}
-${assistantContext.content}
+  const prompt = `You will be given a message labeled about someone labeled {{message}}. Convert this message to contain the same information, but it must be in second person and start as if it was bullet point. If the message contains more than one information, split it into separate points
+Here is an example:
+INPUT: "He is smart, funny and you like dogs"
+OUTPUT: "- You are smart.\n- You are funny.\n- You like dogs."
 
 ###
 
-{{definition}}
-${trimmedContent}`
-    : `You will be given given definition about assistant labeled {{definition}}. Please create a summary about the assistant based on definition you will be given. Always answer with short bullet points about the assistant and nothing more. The points must be in second person and start with "- You"
-
-
-{{definition}}
-${trimmedContent}`;
+{{message}}
+${trimmedContent}
+`;
 
   const response = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',
@@ -108,7 +99,8 @@ ${trimmedContent}`;
   });
 
   const completionResult = (await response.json()) as CompletionResult;
-  const newContext = completionResult.choices[0].message.content;
+  const newPoint = completionResult.choices[0].message.content;
+  const newContext = assistantContext ? `${assistantContext.content}\n${newPoint}` : newPoint;
 
   if (assistantContext) {
     await prisma.assistantContext.update({
