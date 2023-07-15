@@ -15,6 +15,7 @@ interface Props extends HTMLProps<HTMLTextAreaElement> {
 export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
   ({ chatId, pendingPrompt, onSend, onPendingPrompt, className, ...rest }, ref) => {
     const [value, setValue] = useState('');
+    const [loading, setLoading] = useState(false);
     const addNotification = useAddNotification();
 
     const handleKeyDownPrompt = async (
@@ -23,13 +24,14 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
       const currentPrompt = value.trim();
 
       if (e.key !== 'Enter' || e.shiftKey) return;
-      if (!currentPrompt || pendingPrompt) return;
+      if (!currentPrompt || pendingPrompt || loading) return;
       e.preventDefault();
 
       setValue('');
 
       try {
         if (currentPrompt.startsWith('/')) {
+          setLoading(true);
           const [cmd, ...content] = currentPrompt.split(' ');
 
           switch (cmd) {
@@ -37,7 +39,6 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
               if (!content.length) break;
 
               const contentStr = content.join(' ').trim();
-              onPendingPrompt(contentStr);
 
               await invoke('add_user_context_message', { content: contentStr });
               addNotification({ text: 'Context expanded', type: NotificationType.Success });
@@ -47,7 +48,6 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
               if (!content.length) break;
 
               const contentStr = content.join(' ').trim();
-              onPendingPrompt(contentStr);
 
               await invoke('add_assistant_context_message', { content: contentStr });
               addNotification({ text: 'Context expanded', type: NotificationType.Success });
@@ -82,11 +82,12 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
         addNotification({ text: 'Something went wrong', type: NotificationType.Error });
       }
 
+      setLoading(false);
       onPendingPrompt('');
     };
 
     return (
-      <div className="border-t border-t-accent pt-4 mt-2 ml-1 mr-1 w-[calc(100%-0.5rem)]">
+      <div className="border-t border-t-accent pt-4 mt-2 ml-1 mr-1 w-[calc(100%-0.5rem)] relative">
         <textarea
           ref={ref}
           autoFocus
@@ -99,6 +100,9 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
             className ? ` ${className}` : ''
           }`}
         />
+        {loading && (
+          <span className="loading loading-ring loading-lg text-primary absolute right-4 top-1/2 -translate-y-[calc(50%-0.25rem)]" />
+        )}
       </div>
     );
   },

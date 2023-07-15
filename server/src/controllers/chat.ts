@@ -105,6 +105,7 @@ ${userContext.content}`
   };
 
   const messages = [systemMessage, ...contextMessages, newUserMessage];
+  console.log(contextMessages);
 
   const completionResponse = await fetch(OPEN_AI_COMPLETIONS, {
     method: 'POST',

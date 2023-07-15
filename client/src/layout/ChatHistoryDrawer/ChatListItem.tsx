@@ -12,13 +12,13 @@ interface Props {
 
 export const ChatListItem: FC<Props> = ({ chat: { id, name }, currentChatId, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.stopPropagation();
-    if (isLoading) return;
+    if (loading) return;
 
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       await invoke('delete_chat_by_id', { chatId: id });
@@ -27,7 +27,7 @@ export const ChatListItem: FC<Props> = ({ chat: { id, name }, currentChatId, onD
       console.log(error);
     }
 
-    setIsLoading(false);
+    setLoading(false);
   };
 
   return (
@@ -37,7 +37,7 @@ export const ChatListItem: FC<Props> = ({ chat: { id, name }, currentChatId, onD
       onMouseLeave={() => setIsHovered(false)}
     >
       <p className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">{name}</p>
-      {isLoading && <span className="loading loading-ring loading-xs text-primary" />}
+      {loading && <span className="loading loading-ring loading-xs text-primary" />}
       {isHovered && (
         <button className="btn btn-square btn-xs" onClick={handleDelete}>
           <MdDelete className="text-lg text-error opacity-60" />
