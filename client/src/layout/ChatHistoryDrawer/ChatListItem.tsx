@@ -2,6 +2,8 @@ import { type FC, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { useAddNotification } from '../../hooks/useAddNotification';
+import { NotificationType } from '../../types/notifications';
 import type { Chat } from '../../types/chat';
 
 interface Props {
@@ -13,6 +15,7 @@ interface Props {
 export const ChatListItem: FC<Props> = ({ chat: { id, name }, currentChatId, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [loading, setLoading] = useState(false);
+  const addNotification = useAddNotification();
 
   const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.stopPropagation();
@@ -23,7 +26,9 @@ export const ChatListItem: FC<Props> = ({ chat: { id, name }, currentChatId, onD
     try {
       await invoke('delete_chat_by_id', { chatId: id });
       onDelete(id);
+      addNotification({ text: 'Chat successfully deleted', type: NotificationType.Success });
     } catch (error) {
+      addNotification({ text: 'Something went wrong', type: NotificationType.Error });
       console.log(error);
     }
 

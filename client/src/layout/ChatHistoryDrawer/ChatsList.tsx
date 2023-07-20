@@ -1,7 +1,9 @@
 import { type FC, useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { useAddNotification } from '../../hooks/useAddNotification';
 import { ChatListItem } from './ChatListItem';
+import { NotificationType } from '../../types/notifications';
 import type { Chat } from '../../types/chat';
 
 interface Props {
@@ -11,11 +13,13 @@ interface Props {
 
 export const ChatList: FC<Props> = ({ chatId, onSelect }) => {
   const [chats, setChats] = useState<Chat[]>([]);
+  const addNotification = useAddNotification();
 
   const loadChats = async (): Promise<void> => {
     try {
       setChats(await invoke<Chat[]>('get_chats'));
     } catch (error) {
+      addNotification({ text: 'Something went wrong', type: NotificationType.Error });
       console.log(error);
     }
   };

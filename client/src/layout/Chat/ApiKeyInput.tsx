@@ -31,6 +31,7 @@ export const ApiKeyInput = forwardRef<HTMLInputElement, Props>(
         addNotification({ text: 'API key successfully saved', type: NotificationType.Success });
         if (error) setError(false);
       } catch (error) {
+        addNotification({ text: 'Something went wrong', type: NotificationType.Error });
         console.log(error);
         setError(true);
       }

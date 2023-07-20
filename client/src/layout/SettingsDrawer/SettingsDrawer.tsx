@@ -1,6 +1,8 @@
 import { type FC, useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { useAddNotification } from '../../hooks/useAddNotification';
+import { NotificationType } from '../../types/notifications';
 import { Theme } from '../../types/style';
 import { Config } from '../../types/config';
 
@@ -21,6 +23,7 @@ const parseBool = (str: string): boolean => {
 
 export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+  const addNotification = useAddNotification();
 
   useEffect(() => {
     (async () => {
@@ -29,6 +32,7 @@ export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
           parseBool(await invoke('get_public_config', { config: Config.AlwaysOnTop })),
         );
       } catch (error) {
+        addNotification({ text: 'Something went wrong', type: NotificationType.Error });
         console.log(error);
       }
     })();
@@ -40,6 +44,7 @@ export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
       document.querySelector('html')?.setAttribute('data-theme', theme.toLowerCase());
       onChangeTheme(theme);
     } catch (error) {
+      addNotification({ text: 'Something went wrong', type: NotificationType.Error });
       console.log(error);
     }
   };
@@ -51,6 +56,7 @@ export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
       await invoke('toggle_always_on_top');
       setAlwaysOnTop(parseBool(await invoke('get_public_config', { config: Config.AlwaysOnTop })));
     } catch (error) {
+      addNotification({ text: 'Something went wrong', type: NotificationType.Error });
       console.log(error);
     }
   };

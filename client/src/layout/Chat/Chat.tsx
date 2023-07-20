@@ -6,6 +6,8 @@ import { ApiKeyInput } from './ApiKeyInput';
 import { PromptTextarea } from './PromptTextarea';
 import { Messages } from './Messages';
 import { hasApiKeyAtom } from '../../atoms/apiKey';
+import { useAddNotification } from '../../hooks/useAddNotification';
+import { NotificationType } from '../../types/notifications';
 import type { SendMessageData, Message } from '../../types/chat';
 
 interface Props {
@@ -20,6 +22,7 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
   const [loading, setLoading] = useState(false);
   const promptRef = useRef<HTMLTextAreaElement>(null);
   const apiKeyRef = useRef<HTMLInputElement>(null);
+  const addNotification = useAddNotification();
 
   useEffect(() => {
     const focusInput = (): void => {
@@ -41,6 +44,7 @@ export const Chat: FC<Props> = ({ chatId, onNewChat }) => {
           setLoading(true);
           setMessages(await invoke<Message[]>('get_messages_by_chat_id', { chatId }));
         } catch (error) {
+          addNotification({ text: 'Something went wrong', type: NotificationType.Error });
           console.log(error);
         }
 

@@ -78,8 +78,8 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
           onSend(data);
         }
       } catch (error) {
-        console.log(error);
         addNotification({ text: 'Something went wrong', type: NotificationType.Error });
+        console.log(error);
       }
 
       setLoading(false);
