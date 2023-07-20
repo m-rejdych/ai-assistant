@@ -53,7 +53,7 @@ pub fn create_data_dir(app: &AppHandle) -> Result<(), Error> {
 pub fn insert_config(
     filename: &str,
     config_name: &str,
-    config_content: String,
+    config_content: &str,
     app: &AppHandle,
 ) -> Result<(), Error> {
     let config_file_content = read_config_file(filename, app);

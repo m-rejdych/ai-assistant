@@ -13,7 +13,7 @@ use handlers::context::{
     add_assistant_context_message, add_user_context_message, delete_assistant_context,
     delete_user_context,
 };
-use handlers::style::{change_theme, get_theme};
+use handlers::config::{change_theme, get_public_config, toggle_always_on_top};
 use handlers::window::{exit, resize_window, restart, toggle_window};
 
 fn main() {
@@ -37,7 +37,8 @@ fn main() {
             delete_user_context,
             delete_assistant_context,
             change_theme,
-            get_theme,
+            get_public_config,
+            toggle_always_on_top,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

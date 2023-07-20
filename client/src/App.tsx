@@ -9,6 +9,7 @@ import { Chat } from './layout/Chat';
 import { Notifications } from './layout/Notifications';
 import { hasApiKeyAtom } from './atoms/apiKey';
 import { Theme } from './types/style';
+import { Config } from './types/config';
 
 const HOTKEY = 'Alt+Shift+Ctrl+A' as const;
 const HOTKEY_RESIZE = 'Alt+Shift+Ctrl+S' as const;
@@ -23,7 +24,9 @@ export const App: FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const currentTheme = await invoke<Theme | null>('get_theme');
+        const currentTheme = await invoke<Theme | null>('get_public_config', {
+          config: Config.Theme,
+        });
         if (currentTheme) {
           document.querySelector('html')?.setAttribute('data-theme', currentTheme.toLowerCase());
           setTheme(currentTheme);
@@ -71,6 +74,16 @@ export const App: FC = () => {
     })();
   }, [hasApiKey]);
 
+  const handleChangeTheme = async (theme: Theme): Promise<void> => {
+    setTheme(theme);
+
+    try {
+      setTheme(await invoke('get_public_config', { config: Config.Theme }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (!isInit) return null;
 
   return (
@@ -79,7 +92,7 @@ export const App: FC = () => {
       {hasApiKey && (
         <>
           <ChatHistoryDrawer chatId={chatId} onNewChat={setChatId} />
-          <SettingsDrawer theme={theme} onChangeTheme={setTheme} />
+          <SettingsDrawer theme={theme} onChangeTheme={handleChangeTheme} />
           <Notifications />
         </>
       )}

@@ -12,7 +12,7 @@ struct ValidateApiKeyData {
 }
 
 pub fn get_api_key(app: &AppHandle) -> Option<String> {
-    get_config(".airc", "API_KEY", app)
+    get_config(".airc", "ApiKey", app)
 }
 
 pub async fn validate_api_key(api_key: &str) -> Result<bool, Error> {

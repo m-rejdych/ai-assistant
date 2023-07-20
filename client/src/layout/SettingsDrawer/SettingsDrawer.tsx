@@ -1,19 +1,55 @@
-import type { FC } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
 import { Theme } from '../../types/style';
+import { Config } from '../../types/config';
 
 interface Props {
   theme: Theme;
   onChangeTheme: (theme: Theme) => void;
 }
 
+const parseBool = (str: string): boolean => {
+  switch (str) {
+    case 'true':
+      return true;
+    case 'false':
+    default:
+      return false;
+  }
+};
+
 export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
+  const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setAlwaysOnTop(
+          parseBool(await invoke('get_public_config', { config: Config.AlwaysOnTop })),
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
+
   const handleChangeTheme = async (theme: Theme): Promise<void> => {
     try {
       await invoke('change_theme', { theme });
       document.querySelector('html')?.setAttribute('data-theme', theme.toLowerCase());
       onChangeTheme(theme);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toggleAlwaysOnTop = async (): Promise<void> => {
+    setAlwaysOnTop((prev) => !prev);
+
+    try {
+      await invoke('toggle_always_on_top');
+      setAlwaysOnTop(parseBool(await invoke('get_public_config', { config: Config.AlwaysOnTop })));
     } catch (error) {
       console.log(error);
     }
@@ -44,6 +80,15 @@ export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
                 </li>
               </ul>
             </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <p className="text-sm">Always on top</p>
+            <input
+              type="checkbox"
+              className="toggle toggle-primary mr-4"
+              checked={alwaysOnTop}
+              onChange={toggleAlwaysOnTop}
+            />
           </div>
         </div>
       </div>

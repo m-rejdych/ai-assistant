@@ -5,9 +5,12 @@ use super::super::util::{
     data_dir::{get_config, insert_config, remove_config},
 };
 
+const AI_RC: &'static str = ".airc";
+const API_KEY: &'static str = "ApiKey";
+
 #[command]
 pub fn has_api_key(app: AppHandle) -> bool {
-    get_config(".airc", "API_KEY", &app).map_or(false, |_| true)
+    get_config(AI_RC, API_KEY, &app).map_or(false, |_| true)
 }
 
 #[command]
@@ -18,7 +21,7 @@ pub async fn save_api_key(app: AppHandle, key: String) -> Result<(), Error> {
         return Err(Error::FailedToSendMessage);
     }
 
-    insert_config(".airc", "API_KEY", key, &app)?;
+    insert_config(AI_RC, API_KEY, &key, &app)?;
 
     Ok(())
 }
@@ -40,7 +43,7 @@ pub async fn validate_stored_api_key(app: AppHandle) -> bool {
 
 #[command]
 pub fn clear_api_key(app: AppHandle) -> Result<(), Error> {
-    remove_config(".airc", "API_KEY", &app)?;
+    remove_config(AI_RC, API_KEY, &app)?;
 
     Ok(())
 }
