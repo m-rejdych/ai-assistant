@@ -4,8 +4,8 @@ use super::super::util::{
     auth::{get_api_key, validate_api_key},
     data_dir::{get_config, insert_config, remove_config},
 };
+use super::super::constants::AI_RC;
 
-const AI_RC: &'static str = ".airc";
 const API_KEY: &'static str = "ApiKey";
 
 #[command]

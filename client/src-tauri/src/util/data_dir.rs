@@ -2,6 +2,8 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::{api::file, AppHandle, Error};
 
+use super::super::constants::AI_RC;
+
 fn read_config_file(filename: &str, app: &AppHandle) -> Option<String> {
     let config_dir = match get_config_dir(app) {
         Some(dir) => dir,
@@ -139,7 +141,7 @@ pub fn update_config(
         return Err(Error::FailedToSendMessage);
     }
 
-    write_config_file(".airc", lines.join("\n"), app)?;
+    write_config_file(AI_RC, lines.join("\n"), app)?;
 
     Ok(())
 }

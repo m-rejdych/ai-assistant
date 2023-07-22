@@ -3,8 +3,8 @@ use std::fmt;
 use tauri::{command, Window, AppHandle, Error};
 
 use super::super::util::data_dir::{get_config, insert_config, update_config};
+use super::super::constants::AI_RC;
 
-const AI_RC: &'static str = ".airc";
 const THEME: &'static str = "Theme";
 const ALWAYS_ON_TOP: &'static str = "AlwaysOnTop";
 

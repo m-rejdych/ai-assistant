@@ -7,6 +7,7 @@ use tauri::{generate_handler, ActivationPolicy, Builder, SystemTray, SystemTrayE
 
 mod handlers;
 mod util;
+mod constants;
 use handlers::auth::{clear_api_key, has_api_key, save_api_key, validate_stored_api_key};
 use handlers::chat::{
     delete_chat_by_id, get_active_chat, get_chats, get_messages_by_chat_id, send_message,

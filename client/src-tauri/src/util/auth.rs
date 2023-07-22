@@ -4,6 +4,7 @@ use tauri::{api::http, AppHandle, Error};
 
 use super::api::get_api_url;
 use super::data_dir::get_config;
+use super::super::constants::AI_RC;
 
 #[derive(serde::Deserialize)]
 struct ValidateApiKeyData {
@@ -12,7 +13,7 @@ struct ValidateApiKeyData {
 }
 
 pub fn get_api_key(app: &AppHandle) -> Option<String> {
-    get_config(".airc", "ApiKey", app)
+    get_config(AI_RC, "ApiKey", app)
 }
 
 pub async fn validate_api_key(api_key: &str) -> Result<bool, Error> {
