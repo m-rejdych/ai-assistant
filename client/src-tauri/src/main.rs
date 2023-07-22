@@ -3,22 +3,42 @@
 #[macro_use]
 extern crate dotenv_codegen;
 
+use tauri::{generate_handler, ActivationPolicy, Builder, SystemTray, SystemTrayEvent, Manager};
+
 mod handlers;
 mod util;
 use handlers::auth::{clear_api_key, has_api_key, save_api_key, validate_stored_api_key};
 use handlers::chat::{
     delete_chat_by_id, get_active_chat, get_chats, get_messages_by_chat_id, send_message,
 };
+use handlers::config::{change_theme, get_public_config, toggle_always_on_top};
 use handlers::context::{
     add_assistant_context_message, add_user_context_message, delete_assistant_context,
     delete_user_context,
 };
-use handlers::config::{change_theme, get_public_config, toggle_always_on_top};
 use handlers::window::{exit, resize_window, restart, toggle_window};
 
 fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
+    let system_tray = SystemTray::new();
+
+    Builder::default()
+        .system_tray(system_tray)
+        .on_system_tray_event(|app, event| match event {
+            SystemTrayEvent::LeftClick { .. } => {
+                let window = app.get_window("main").unwrap();
+                if !window.is_visible().unwrap() {
+                    window.show().unwrap();
+                    window.set_focus().unwrap();
+                }
+            }
+            _ => (),
+        })
+        .setup(|app| {
+            app.set_activation_policy(ActivationPolicy::Accessory);
+
+            Ok(())
+        })
+        .invoke_handler(generate_handler![
             resize_window,
             toggle_window,
             exit,
