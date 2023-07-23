@@ -20,7 +20,7 @@ declare module 'unfluff' {
     }[]
   }
 
-  const extractor: (url: string, locale: string) => Data;
+  const extractor: (html: string, locale: string) => Data;
 
   export default extractor;
 };

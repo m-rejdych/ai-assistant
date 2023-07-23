@@ -10,22 +10,10 @@ import {
 
 export const router = Router();
 
-router.post(
-  '/add-user-context-message',
-  validateApiKeyFromAuthHeader,
-  addUserContextMessageHandler,
-);
+router.post('/add-user-context-message', addUserContextMessageHandler);
 
-router.post(
-  '/add-assistant-context-message',
-  validateApiKeyFromAuthHeader,
-  addAssistantContextMessageHandler,
-);
+router.post('/add-assistant-context-message', addAssistantContextMessageHandler);
 
 router.delete('/delete-user-context', validateApiKeyFromAuthHeader, deleteUserContextHandler);
 
-router.delete(
-  '/delete-assistant-context',
-  validateApiKeyFromAuthHeader,
-  deleteAssistantContextHandler,
-);
+router.delete('/delete-assistant-context', deleteAssistantContextHandler);

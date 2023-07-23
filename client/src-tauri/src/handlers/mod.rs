@@ -3,3 +3,4 @@ pub mod auth;
 pub mod chat;
 pub mod context;
 pub mod config;
+pub mod notion;
