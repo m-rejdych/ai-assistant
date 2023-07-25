@@ -18,7 +18,7 @@ use handlers::context::{
     delete_user_context,
 };
 use handlers::window::{exit, resize_window, restart, toggle_window};
-use handlers::notion::generate_summary;
+use handlers::notion::{generate_summary, save_notion_api_key, save_notion_database_id};
 
 fn main() {
     let system_tray = SystemTray::new();
@@ -62,6 +62,8 @@ fn main() {
             get_public_config,
             toggle_always_on_top,
             generate_summary,
+            save_notion_api_key,
+            save_notion_database_id,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

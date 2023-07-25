@@ -12,6 +12,8 @@ const ALWAYS_ON_TOP: &'static str = "AlwaysOnTop";
 pub enum Config {
     Theme,
     AlwaysOnTop,
+    NotionApiKey,
+    NotionDatabaseId,
 }
 
 #[derive(Debug, Deserialize)]

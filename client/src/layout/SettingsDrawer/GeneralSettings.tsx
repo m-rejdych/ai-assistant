@@ -63,7 +63,7 @@ export const GeneralSettings: FC<Props> = ({ theme, onChangeTheme }) => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-2">
         <p className="text-sm">Theme</p>
         <div className="dropdown dropdown-right">
           <label tabIndex={0} className="btn btn-sm m-1">
