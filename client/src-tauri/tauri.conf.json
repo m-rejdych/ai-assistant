@@ -18,6 +18,12 @@
     },
     "allowlist": {
       "all": false,
+      "clipboard": {
+        "readText": true
+      },
+      "notification": {
+        "all": true
+      },
       "window": {
         "all": false,
         "close": true,

@@ -19,9 +19,9 @@ pub async fn send_message(
     };
     let url = format!("{}/chat/send-message", get_api_url());
     let req = create_authorized_req(&app, "POST", url)?.body(http::Body::Json(json_body));
-    let res = client.send(req).await?.read().await?;
+    let res = client.send(req).await?;
 
-    let data = unwrap_data(res)?;
+    let data = unwrap_data(res).await?;
 
     Ok(data)
 }
@@ -34,9 +34,9 @@ pub async fn get_messages_by_chat_id(app: AppHandle, chat_id: String) -> Result<
     let mut query = HashMap::new();
     query.insert("chatId".to_string(), chat_id);
     let req = create_authorized_req(&app, "GET", url)?.query(query);
-    let res = client.send(req).await?.read().await?;
+    let res = client.send(req).await?;
 
-    let data = unwrap_data(res)?;
+    let data = unwrap_data(res).await?;
 
     Ok(data)
 }
@@ -48,9 +48,9 @@ pub async fn get_active_chat(app: AppHandle) -> Result<Value, Error> {
     let client = http::ClientBuilder::new().build()?;
 
     let req = create_authorized_req(&app, "GET", url)?;
-    let res = client.send(req).await?.read().await?;
+    let res = client.send(req).await?;
 
-    let data = unwrap_data(res)?;
+    let data = unwrap_data(res).await?;
 
     Ok(data)
 }
@@ -62,9 +62,9 @@ pub async fn get_chats(app: AppHandle) -> Result<Value, Error> {
     let client = http::ClientBuilder::new().build()?;
 
     let req = create_authorized_req(&app, "GET", url)?;
-    let res = client.send(req).await?.read().await?;
+    let res = client.send(req).await?;
 
-    let data = unwrap_data(res)?;
+    let data = unwrap_data(res).await?;
 
     Ok(data)
 }

@@ -1,5 +1,8 @@
 use serde_json::{json, Value};
-use tauri::{api::http, command, AppHandle, Error};
+use tauri::{
+    api::{http, notification::Notification},
+    command, AppHandle, ClipboardManager, Error,
+};
 
 use super::super::constants::AI_RC;
 use super::super::util::api::{create_authorized_req, get_api_url, unwrap_data};
@@ -9,13 +12,37 @@ const NOTION_API_KEY: &'static str = "NotionApiKey";
 const NOTION_DATABASE_ID: &'static str = "NotionDatabaseId";
 
 #[command]
-pub async fn generate_summary(app: AppHandle, url: String) -> Result<Value, Error> {
+pub async fn generate_summary(app: AppHandle, url: Option<String>) -> Result<Value, Error> {
+    Notification::new(&app.config().tauri.bundle.identifier)
+        .title("Generating summary...")
+        .show()?;
     let client = http::ClientBuilder::new().build()?;
 
-    let body = http::Body::Json(json!({ "url": url }));
-    let req = create_authorized_req(&app, "POST", get_api_url())?.body(body);
+    let url = url
+        .or_else(|| match app.clipboard_manager().read_text() {
+            Ok(text) => text,
+            Err(_) => None,
+        })
+        .ok_or(Error::FailedToSendMessage)?;
 
-    let data = unwrap_data(client.send(req).await?.read().await?)?;
+    let notion_api_key =
+        get_config(AI_RC, NOTION_API_KEY, &app).ok_or(Error::FailedToSendMessage)?;
+
+    let notion_database_id =
+        get_config(AI_RC, NOTION_DATABASE_ID, &app).ok_or(Error::FailedToSendMessage)?;
+
+    let api_url = format!("{}/notion/generate-summary", get_api_url());
+    let body = http::Body::Json(json!({ "url": url, "databaseId": notion_database_id }));
+    let req = create_authorized_req(&app, "POST", api_url)?
+        .header("Notion-Authorization", format!("Bearer {}", notion_api_key))?
+        .body(body);
+
+    let res = client.send(req).await?;
+    let data = unwrap_data(res).await?;
+
+    Notification::new(&app.config().tauri.bundle.identifier)
+        .title("Summary created")
+        .show()?;
 
     Ok(data)
 }

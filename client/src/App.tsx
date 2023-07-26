@@ -13,6 +13,7 @@ import { Config } from './types/config';
 
 const HOTKEY = 'Alt+Shift+Ctrl+A' as const;
 const HOTKEY_RESIZE = 'Alt+Shift+Ctrl+S' as const;
+const HOTKEY_GENERATE_SUMMARY = 'Alt+Shift+Ctrl+N' as const;
 const DEFAULT_THEME = Theme.Coffee as const;
 
 export const App: FC = () => {
@@ -35,11 +36,15 @@ export const App: FC = () => {
         }
 
         await invoke('resize_window');
+
         if (!(await isRegistered(HOTKEY))) {
           await register(HOTKEY, async () => invoke('toggle_window'));
         }
         if (!(await isRegistered(HOTKEY_RESIZE))) {
           await register(HOTKEY_RESIZE, async () => invoke('resize_window'));
+        }
+        if (!(await isRegistered(HOTKEY_GENERATE_SUMMARY))) {
+          await register(HOTKEY_GENERATE_SUMMARY, async () => invoke('generate_summary'));
         }
 
         const hasKey = await invoke<boolean>('has_api_key');

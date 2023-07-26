@@ -22,13 +22,14 @@ pub fn create_authorized_req(
     Ok(req)
 }
 
-pub fn unwrap_data(
-    http::ResponseData { data, status, .. } : http::ResponseData,
+pub async fn unwrap_data(
+    response : http::Response,
 ) -> Result<Value, Error> {
-    if status >= 400 {
-        eprintln!("{:?}", data);
+    if response.status().as_u16() >= 400 {
+        eprintln!("{:?}", response);
         Err(Error::FailedToSendMessage)
     } else {
+        let http::ResponseData { data, .. } = response.read().await?;
         Ok(data)
     }
 }
