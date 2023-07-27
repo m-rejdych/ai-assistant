@@ -8,6 +8,8 @@ import { SettingsDrawer } from './layout//SettingsDrawer';
 import { Chat } from './layout/Chat';
 import { Notifications } from './layout/Notifications';
 import { hasApiKeyAtom } from './atoms/apiKey';
+import { useAddNotification } from './hooks/useAddNotification';
+import { NotificationType } from './types/notifications';
 import { Theme } from './types/style';
 import { Config } from './types/config';
 
@@ -21,6 +23,7 @@ export const App: FC = () => {
   const [hasApiKey, setHasApiKey] = useAtom(hasApiKeyAtom);
   const [isInit, setIsInit] = useState(false);
   const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
+  const addNotification = useAddNotification();
 
   useEffect(() => {
     (async () => {
@@ -44,7 +47,11 @@ export const App: FC = () => {
           await register(HOTKEY_RESIZE, async () => invoke('resize_window'));
         }
         if (!(await isRegistered(HOTKEY_GENERATE_SUMMARY))) {
-          await register(HOTKEY_GENERATE_SUMMARY, async () => invoke('generate_summary'));
+          await register(HOTKEY_GENERATE_SUMMARY, async () => {
+            addNotification({ text: 'Generating summary...' });
+            await invoke('generate_summary');
+            addNotification({ text: 'Summary created', type: NotificationType.Success });
+          });
         }
 
         const hasKey = await invoke<boolean>('has_api_key');

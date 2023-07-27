@@ -35,7 +35,7 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
           const [cmd, ...content] = currentPrompt.split(' ');
 
           switch (cmd) {
-            case '/ctx_u': {
+            case '/ctx-u': {
               if (!content.length) break;
 
               const contentStr = content.join(' ').trim();
@@ -44,7 +44,7 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
               addNotification({ text: 'Context expanded', type: NotificationType.Success });
               break;
             }
-            case '/ctx_a': {
+            case '/ctx-a': {
               if (!content.length) break;
 
               const contentStr = content.join(' ').trim();
@@ -53,14 +53,43 @@ export const PromptTextarea = forwardRef<HTMLTextAreaElement, Props>(
               addNotification({ text: 'Context expanded', type: NotificationType.Success });
               break;
             }
-            case '/ctx_u_clear': {
-              await invoke('delete_user_context');
-              addNotification({ text: 'Context removed', type: NotificationType.Warning });
+            case '/clear': {
+              const filteredContent = content.filter(Boolean);
+              if (filteredContent.length !== 1) break;
+
+              const [contextType] = filteredContent;
+              switch (contextType) {
+                case 'ctx-u': {
+                  await invoke('delete_user_context');
+                  addNotification({ text: 'Context removed', type: NotificationType.Warning });
+                  break;
+                }
+                case 'ctx-a': {
+                  await invoke('delete_assistant_context');
+                  addNotification({ text: 'Context removed', type: NotificationType.Warning });
+                  break;
+                }
+                default:
+                  addNotification({ text: 'Invalid command', type: NotificationType.Error });
+                  break;
+              }
               break;
             }
-            case '/ctx_a_clear': {
-              await invoke('delete_assistant_context');
-              addNotification({ text: 'Context removed', type: NotificationType.Warning });
+            case '/summarize': {
+              const filteredContent = content.filter(Boolean);
+              if (filteredContent.length !== 1) break;
+
+              const [url] = filteredContent;
+              const httpsRegexp =
+                /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+              if (!httpsRegexp.test(url)) {
+                addNotification({ text: 'Invalid URL', type: NotificationType.Error });
+                break;
+              }
+
+              addNotification({ text: 'Generating summary...' });
+              await invoke('generate_summary');
+              addNotification({ text: 'Summary created', type: NotificationType.Success });
               break;
             }
             default:

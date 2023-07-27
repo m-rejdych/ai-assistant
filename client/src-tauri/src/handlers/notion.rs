@@ -1,21 +1,18 @@
 use serde_json::{json, Value};
-use tauri::{
-    api::{http, notification::Notification},
-    command, AppHandle, ClipboardManager, Error,
-};
+use tauri::{api::http, command, AppHandle, ClipboardManager, Error};
 
 use super::super::constants::AI_RC;
 use super::super::util::api::{create_authorized_req, get_api_url, unwrap_data};
 use super::super::util::data_dir::{get_config, insert_config, update_config};
+use super::super::util::notification::notify_when_visible;
 
 const NOTION_API_KEY: &'static str = "NotionApiKey";
 const NOTION_DATABASE_ID: &'static str = "NotionDatabaseId";
 
 #[command]
 pub async fn generate_summary(app: AppHandle, url: Option<String>) -> Result<Value, Error> {
-    Notification::new(&app.config().tauri.bundle.identifier)
-        .title("Generating summary...")
-        .show()?;
+    notify_when_visible(&app, "Generating summary...")?;
+
     let client = http::ClientBuilder::new().build()?;
 
     let url = url
@@ -40,9 +37,7 @@ pub async fn generate_summary(app: AppHandle, url: Option<String>) -> Result<Val
     let res = client.send(req).await?;
     let data = unwrap_data(res).await?;
 
-    Notification::new(&app.config().tauri.bundle.identifier)
-        .title("Summary created")
-        .show()?;
+    notify_when_visible(&app, "Summary created")?;
 
     Ok(data)
 }
