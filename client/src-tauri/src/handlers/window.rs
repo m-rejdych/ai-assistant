@@ -20,7 +20,6 @@ pub fn resize_window(window: Window) -> Result<(), Error> {
     window.set_size(size)?;
     window.set_min_size(Some(size))?;
     window.set_position(position)?;
-    window.show()?;
 
     Ok(())
 }

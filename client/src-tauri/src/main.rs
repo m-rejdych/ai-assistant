@@ -3,11 +3,11 @@
 #[macro_use]
 extern crate dotenv_codegen;
 
-use tauri::{generate_handler, ActivationPolicy, Builder, SystemTray, SystemTrayEvent, Manager};
+use tauri::{generate_handler, ActivationPolicy, Builder, Manager, SystemTray, SystemTrayEvent};
 
+mod constants;
 mod handlers;
 mod util;
-mod constants;
 use handlers::auth::{clear_api_key, has_api_key, save_api_key, validate_stored_api_key};
 use handlers::chat::{
     delete_chat_by_id, get_active_chat, get_chats, get_messages_by_chat_id, send_message,
@@ -17,8 +17,8 @@ use handlers::context::{
     add_assistant_context_message, add_user_context_message, delete_assistant_context,
     delete_user_context,
 };
-use handlers::window::{exit, resize_window, restart, toggle_window};
 use handlers::notion::{generate_summary, save_notion_api_key, save_notion_database_id};
+use handlers::window::{exit, resize_window, restart, toggle_window};
 
 fn main() {
     let system_tray = SystemTray::new();
@@ -37,6 +37,22 @@ fn main() {
         })
         .setup(|app| {
             app.set_activation_policy(ActivationPolicy::Accessory);
+
+            let always_on_top = util::data_dir::get_config(
+                constants::AI_RC,
+                handlers::config::ALWAYS_ON_TOP,
+                &app.handle(),
+            );
+
+            if let Some(always_on_top) = always_on_top {
+                if let Some(window) = app.get_window("main") {
+                    match always_on_top.as_str() {
+                        "true" => window.set_always_on_top(true)?,
+                        "false" => window.set_always_on_top(false)?,
+                        _ => (),
+                    };
+                }
+            }
 
             Ok(())
         })

@@ -6,7 +6,7 @@ use super::super::util::data_dir::{get_config, insert_config, update_config};
 use super::super::constants::AI_RC;
 
 const THEME: &'static str = "Theme";
-const ALWAYS_ON_TOP: &'static str = "AlwaysOnTop";
+pub const ALWAYS_ON_TOP: &'static str = "AlwaysOnTop";
 
 #[derive(Debug, Deserialize)]
 pub enum Config {
