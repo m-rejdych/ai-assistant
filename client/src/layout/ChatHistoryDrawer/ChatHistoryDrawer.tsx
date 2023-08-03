@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 
 import { MenuButtons } from './MenuButtons';
-import { ChatList } from './ChatsList';
+import { ChatsList } from './ChatsList';
 
 interface Props {
   chatId: string;
@@ -16,7 +16,7 @@ export const ChatHistoryDrawer: FC<Props> = ({ chatId, onNewChat }) => (
     </div>
     <div className="drawer-side">
       <label htmlFor="chats" className="drawer-overlay" />
-      <ChatList chatId={chatId} onSelect={onNewChat} />
+      <ChatsList chatId={chatId} onSelect={onNewChat} />
     </div>
   </div>
 );
