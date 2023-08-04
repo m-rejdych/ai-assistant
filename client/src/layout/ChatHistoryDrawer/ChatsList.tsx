@@ -35,7 +35,7 @@ export const ChatsList: FC<Props> = ({ chatId, onSelect }) => {
   };
 
   return (
-    <ul className="menu p-4 w-80 h-full bg-base-200 text-base-content flex-nowrap">
+    <ul className="menu p-4 w-80 h-full bg-base-200 text-base-content flex-nowrap overflow-y-auto">
       <li className="menu-title text-lg text-center">Chat history</li>
       {chats.map((chat) => (
         <li
