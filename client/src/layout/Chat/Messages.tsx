@@ -1,6 +1,8 @@
 import { useRef, useEffect, type FC, type HTMLProps } from 'react';
 
+import { ContentChunk } from './ContentChunk';
 import { type Message, RoleType } from '../../types/chat';
+import { parseContent } from './util';
 
 interface Props extends HTMLProps<HTMLDivElement> {
   messages: Message[];
@@ -52,11 +54,9 @@ export const Messages: FC<Props> = ({ messages, pendingPrompt, ...rest }) => {
               </>
             )}
           </div>
-          <div className={`chat-bubble${isUser(type) ? ' chat-bubble-primary' : ''}`}>
-            {content.split('\n').map((chunk, index) => (
-              <p className="min-h-6 break-words" key={`${id}-${index}`}>
-                {chunk}
-              </p>
+          <div className={`w-full chat-bubble${isUser(type) ? ' chat-bubble-primary' : ''}`}>
+            {parseContent(content).map((chunk, index) => (
+              <ContentChunk key={`${id}-${index}`} {...chunk} />
             ))}
           </div>
         </div>
