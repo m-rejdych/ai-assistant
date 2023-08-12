@@ -38,21 +38,8 @@ fn main() {
         .setup(|app| {
             app.set_activation_policy(ActivationPolicy::Accessory);
 
-            let always_on_top = util::data_dir::get_config(
-                constants::AI_RC,
-                handlers::config::ALWAYS_ON_TOP,
-                &app.handle(),
-            );
-
-            if let Some(always_on_top) = always_on_top {
-                if let Some(window) = app.get_window("main") {
-                    match always_on_top.as_str() {
-                        "true" => window.set_always_on_top(true)?,
-                        "false" => window.set_always_on_top(false)?,
-                        _ => (),
-                    };
-                }
-            }
+            util::window::apply_current_always_on_top(&app.app_handle())?;
+            util::shortcut::register_shortcuts(&app)?;
 
             Ok(())
         })
