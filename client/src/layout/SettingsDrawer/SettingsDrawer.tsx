@@ -27,7 +27,7 @@ export const SettingsDrawer: FC<Props> = ({ theme, onChangeTheme }) => {
           <div className="collapse collapse-arrow bg-base-300 mt-4">
             <input type="radio" name="settings-accordion" />
             <div className="collapse-title text-lg font-medium">Notion</div>
-            <div className="collapse-content">
+            <div className="collapse-content overflow-hidden">
               <NotionSettings />
             </div>
           </div>

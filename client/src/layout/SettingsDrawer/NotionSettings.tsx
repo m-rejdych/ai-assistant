@@ -1,7 +1,13 @@
 import { type FC, useEffect, useState, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { Editable } from '../../components/Editable';
 import { Config } from '../../types/config';
+
+enum KeyType {
+  ApiKey,
+  DbId,
+}
 
 export const NotionSettings: FC = () => {
   const [notionApiKey, setNotionApiKey] = useState('');
@@ -23,72 +29,60 @@ export const NotionSettings: FC = () => {
     })();
   }, []);
 
-  const handleSaveNotionApiKey = async (
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ): Promise<void> => {
-    if (e.key !== 'Enter') return;
+  const handleSave =
+    (type: KeyType) =>
+      async (value: string): Promise<void> => {
+        const trimmedValue = value.trim();
+        if (!trimmedValue.length) return;
 
-    const trimmedKey = notionApiKey.trim();
-    if (!trimmedKey.length) return;
+        try {
+          switch (type) {
+            case KeyType.ApiKey: {
+              await invoke('save_notion_api_key', { notionApiKey: trimmedValue });
+              setNotionApiKey(
+                (await invoke<string | null>('get_public_config', {
+                  config: Config.NotionApiKey,
+                })) ?? '',
+              );
 
-    try {
-      await invoke('save_notion_api_key', { notionApiKey: trimmedKey });
-      setNotionApiKey(
-        (await invoke<string | null>('get_public_config', {
-          config: Config.NotionApiKey,
-        })) ?? '',
-      );
-    } catch (error) {
-      console.log(error);
-    }
+              break;
+            }
+            case KeyType.DbId: {
+              await invoke('save_notion_database_id', { databaseId: trimmedValue });
+              setNotionDatabaseId(
+                (await invoke<string | null>('get_public_config', {
+                  config: Config.NotionDatabaseId,
+                })) ?? '',
+              );
 
-    notionApiKeyRef.current?.blur();
-  };
-
-  const handleSaveNotionDatabaseId = async (
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ): Promise<void> => {
-    if (e.key !== 'Enter') return;
-
-    const trimmedDatabaseId = notionDatabaseId.trim();
-    if (!trimmedDatabaseId.length) return;
-
-    try {
-      await invoke('save_notion_database_id', { databaseId: trimmedDatabaseId });
-      setNotionDatabaseId(
-        (await invoke<string | null>('get_public_config', {
-          config: Config.NotionDatabaseId,
-        })) ?? '',
-      );
-    } catch (error) {
-      console.log(error);
-    }
-
-    notionDatabaseIdRef.current?.blur();
-  };
+              break;
+            }
+            default:
+              break;
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
 
   return (
     <>
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-sm whitespace-nowrap">API key</p>
-        <input
-          type="text"
-          className="input input-bordered bg-base-200 input-primary input-sm max-w-xs"
+      <div className="flex w-full items-center justify-between mb-2">
+        <p className="text-sm whitespace-nowrap mr-4">API key</p>
+        <Editable
+          showButton
           value={notionApiKey}
-          onChange={(e) => setNotionApiKey(e.target.value)}
-          onKeyDown={handleSaveNotionApiKey}
-          ref={notionApiKeyRef}
+          onAccept={handleSave(KeyType.ApiKey)}
+          inputProps={{ type: 'text', className: 'bg-base-200' }}
         />
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-sm whitespace-nowrap">DB ID</p>
-        <input
-          type="text"
-          className="input input-bordered bg-base-200 input-primary input-sm max-w-xs"
+        <p className="text-sm whitespace-nowrap mr-4">DB ID</p>
+        <Editable
+          showButton
           value={notionDatabaseId}
-          onChange={(e) => setNotionDatabaseId(e.target.value)}
-          onKeyDown={handleSaveNotionDatabaseId}
-          ref={notionDatabaseIdRef}
+          onAccept={handleSave(KeyType.DbId)}
+          inputProps={{ type: 'text', className: 'bg-base-200' }}
         />
       </div>
     </>
