@@ -54,7 +54,7 @@ export const Messages: FC<Props> = ({ messages, pendingPrompt, ...rest }) => {
               </>
             )}
           </div>
-          <div className={`w-full chat-bubble${isUser(type) ? ' chat-bubble-primary' : ''}`}>
+          <div className={`w-auto chat-bubble ${isUser(type) ? ' chat-bubble-primary' : ''}`}>
             {parseContent(content).map((chunk, index) => (
               <ContentChunk key={`${id}-${index}`} {...chunk} />
             ))}
