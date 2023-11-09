@@ -38,7 +38,7 @@ export const generateSummary = async (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-3.5-turbo-16k',
+      model: 'gpt-4',
       temperature: 0.7,
       messages: [
         {

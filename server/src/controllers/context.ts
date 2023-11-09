@@ -35,7 +35,7 @@ ${trimmedContent}
       Authorization: `Bearer ${process.env.OPEN_AI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4',
       temperature: 0.7,
       messages: [{ role: 'user', content: prompt }],
     }),
@@ -92,7 +92,7 @@ ${trimmedContent}
       Authorization: `Bearer ${process.env.OPEN_AI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4',
       temperature: 0.7,
       messages: [{ role: 'user', content: prompt }],
     }),
