@@ -79,6 +79,9 @@ export const GeneralSettings: FC<Props> = ({ theme, onChangeTheme }) => {
             <li onClick={() => handleChangeTheme(Theme.Night)}>
               <p className={theme === Theme.Night ? 'active' : undefined}>Night</p>
             </li>
+            <li onClick={() => handleChangeTheme(Theme.RosePine)}>
+              <p className={theme === Theme.RosePine ? 'active' : undefined}>Rose Pine</p>
+            </li>
           </ul>
         </div>
       </div>

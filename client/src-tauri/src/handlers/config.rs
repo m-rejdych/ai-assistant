@@ -20,6 +20,7 @@ pub enum Config {
 pub enum Theme {
     Coffee,
     Night,
+    RosePine,
 }
 
 impl fmt::Display for Theme {
