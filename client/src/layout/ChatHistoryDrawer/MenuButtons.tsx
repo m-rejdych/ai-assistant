@@ -18,7 +18,7 @@ export const MenuButtons: FC<Props> = ({ onNewChat }) => {
   };
 
   return (
-    <div className="fixed overflow-hidden top-2 -left-9 bg-base-200 rounded-box opacity-50 hover:opacity-100 transition-transform hover:translate-x-7">
+    <div className="fixed top-2 -left-9 bg-base-200 rounded-box opacity-50 hover:opacity-100 transition-transform hover:translate-x-7">
       <ul
         className="menu menu-xs"
         onMouseEnter={() => setIsMenuHovered(true)}
